@@ -9,7 +9,7 @@ export const sendOtp = async (req, res) => {
     patient = new Patient({ number });
   }
 
-  const otp = otpGenerator.generate(4, { upperCaseAlphabets: false, specialChars: false });
+  const otp = otpGenerator.generate(4, { upperCaseAlphabets: false, specialChars: false,lowerCaseAlphabets:false });
 
   const otpExpire = Date.now() + 5 * 60 * 1000;
 
