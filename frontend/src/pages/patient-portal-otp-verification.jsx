@@ -1,10 +1,19 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import url from "../auth/url";
 
 const OTPVerificationPage = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(30);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { otpData } = location.state || {};
+
+  useEffect(() => {
+    console.log("number:", otpData?.number);
+    console.log("response Data:", otpData?.responseData.otp);
+  }, [otpData]);
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -35,17 +44,49 @@ const OTPVerificationPage = () => {
     setTimer(30);
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent the default form submission
+    const otpString = otp.join(""); // Combine the OTP digits into a string
+    console.log("Submitted OTP:", otpString);
+    console.log("Associated Number:", otpData?.number);
+
+    try {
+      const response = await axios.post(`${url}/api/v1/auth/verify-otp`, {
+        otp: otpString,
+        number: otpData?.number,
+      });
+
+      console.log("Verification Response:", response.data);
+      // Handle success (e.g., navigate to dashboard)
+      if (response.data.success) {
+        navigate("/dashboard"); // Redirect on success
+      } else {
+        console.error("Error:", response.data.message); // Log error message
+      }
+    } catch (error) {
+      console.error("Error during OTP verification:", error);
+      // Handle error (e.g., show error message to user)
+      if (error.response) {
+        // Server responded with a status other than 200 range
+        console.error("Server Error:", error.response.data);
+      } else {
+        // Network error or other error
+        console.error("Network Error:", error.message);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-md w-full p-8">
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-teal-800">Verify OTP</h3>
           <p className="text-teal-600">
-            Enter the OTP sent to your registered mobile number
+            Enter the OTP sent to {otpData?.number}
           </p>
         </div>
 
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="flex justify-center space-x-2">
             {otp.map((data, index) => {
               return (
@@ -64,9 +105,6 @@ const OTPVerificationPage = () => {
           </div>
 
           <button
-            onClick={() => {
-              navigate("/dashboard");
-            }}
             type="submit"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200 ease-in-out"
           >
