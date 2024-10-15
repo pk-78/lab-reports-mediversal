@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const OTPVerificationPage = () => {
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [otp, setOtp] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(30);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -38,7 +40,9 @@ const OTPVerificationPage = () => {
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-md w-full p-8">
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-teal-800">Verify OTP</h3>
-          <p className="text-teal-600">Enter the OTP sent to your registered mobile number</p>
+          <p className="text-teal-600">
+            Enter the OTP sent to your registered mobile number
+          </p>
         </div>
 
         <form className="space-y-6">
@@ -52,14 +56,17 @@ const OTPVerificationPage = () => {
                   maxLength="1"
                   key={index}
                   value={data}
-                  onChange={e => handleChange(e.target, index)}
-                  onFocus={e => e.target.select()}
+                  onChange={(e) => handleChange(e.target, index)}
+                  onFocus={(e) => e.target.select()}
                 />
               );
             })}
           </div>
 
           <button
+            onClick={() => {
+              navigate("/dashboard");
+            }}
             type="submit"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200 ease-in-out"
           >
@@ -71,9 +78,11 @@ const OTPVerificationPage = () => {
           <button
             onClick={handleResendOTP}
             disabled={timer > 0}
-            className={`text-sm ${timer > 0 ? 'text-teal-400' : 'text-teal-600 hover:text-teal-800'} font-medium`}
+            className={`text-sm ${
+              timer > 0 ? "text-teal-400" : "text-teal-600 hover:text-teal-800"
+            } font-medium`}
           >
-            Resend OTP {timer > 0 ? `in ${timer} seconds` : ''}
+            Resend OTP {timer > 0 ? `in ${timer} seconds` : ""}
           </button>
         </div>
       </div>
