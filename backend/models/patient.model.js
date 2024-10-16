@@ -16,12 +16,19 @@ const patientSchema = new mongoose.Schema({
   otpExpire: {
     type: Date,
     required: false,
-
   },
   UHID: {
     type: String,
-    unique: true,  
+    unique: true,
   },
+  reports: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Report",
+      required: false,
+      default: [],
+    },
+  ],
 });
 
 const Patient = mongoose.model("Patient", patientSchema);
