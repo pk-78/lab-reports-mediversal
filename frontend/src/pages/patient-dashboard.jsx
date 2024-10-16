@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import url from '../auth/url';
 
-const samplePatient = {
-  name: "Aarav Patel",
-  uhi: "11-1111-1111-1111",
-  mobileNumber: "+91 98765 43210"
-};
+// const samplePatient = {
+//   name: "Aarav Patel",
+//   uhi: "11-1111-1111-1111",
+//   mobileNumber: "+91 98765 43210"
+// };
 
 const sampleLabReports = [
   { id: 'L1', title: "Complete Blood Count", date: "2023-07-15", status: "Ready" },
@@ -19,12 +22,33 @@ const sampleDiagnosticsReports = [
 ];
 
 const PatientDashboard = ({ 
-  patient = samplePatient, 
+  
   labReports = sampleLabReports, 
   diagnosticsReports = sampleDiagnosticsReports 
 }) => {
   const [activeTab, setActiveTab] = useState('lab');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [patientdata, setPatientData]=useState("")
+  const [loading, setLoading]= useState()
+  const{ id} = useParams();
+
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      try {
+        const response = await axios.get(`${url}/api/v1/auth/patients/${id}`);
+        console.log(response)
+        setPatientData(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [id]);
+
+
 
   const TabButton = ({ id, label, comingSoon = false }) => (
     <button
@@ -94,7 +118,7 @@ const PatientDashboard = ({
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">Patient Portal</h1>
           <div className="flex items-center space-x-4">
-            <span>{patient.name}</span>
+            <span>{patientdata.name}</span>
             <button className="bg-teal-700 px-3 py-1 rounded hover:bg-teal-800">Logout</button>
           </div>
         </div>
@@ -106,15 +130,15 @@ const PatientDashboard = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600">Name</p>
-              <p className="font-medium">{patient.name}</p>
+              <p className="font-medium">{patientdata?.name}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">UHI</p>
-              <p className="font-medium">{patient.uhi}</p>
+              <p className="text-sm text-gray-600">UHID</p>
+              <p className="font-medium">{patientdata?.UHID}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Mobile Number</p>
-              <p className="font-medium">{patient.mobileNumber}</p>
+              <p className="font-medium">{patientdata?.number}</p>
             </div>
           </div>
         </div>

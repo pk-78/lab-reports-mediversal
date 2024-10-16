@@ -1,8 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import url from "../auth/url";
+import toast from "react-hot-toast";
 
 const OTPVerificationPage = () => {
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [otp, setOtp] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(30);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { otpData } = location.state || {};
+
+  useEffect(() => {
+    // console.log("number:", otpData?.number);
+    console.log("response Data:", otpData?.responseData.otp);
+    console.log("response Data:", otpData?.responseData?.number);
+  }, [otpData]);
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -33,15 +46,51 @@ const OTPVerificationPage = () => {
     setTimer(30);
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent the default form submission
+    const otpString = otp.join(""); // Combine the OTP digits into a string
+    console.log("Submitted OTP:", otpString);
+    console.log("Associated Number:", otpData?.number);
+
+    try {
+      const response = await axios.post(`${url}/api/v1/auth/verify-otp`, {
+        otp: otpString,
+        number: otpData?.responseData?.number,
+      });
+
+      console.log("Verification Response:", response);
+      // Handle success (e.g., navigate to dashboard)
+      if (response.status === 200) {
+        toast.success("Verified");
+        navigate(`/dashboard/${response.data.id}`); // Redirect on success
+      } else {
+        console.error("Error:", response.data.message); // Log error message
+      }
+    } catch (error) {
+      console.error("Error during OTP verification:", error);
+      // Handle error (e.g., show error message to user)
+      if (error.response) {
+        // Server responded with a status other than 200 range
+        console.error("Server Error:", error.response.data.message);
+        toast.error(error.response.data.message);
+      } else {
+        // Network error or other error
+        console.error("Network Error:", error.message);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-md w-full p-8">
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-teal-800">Verify OTP</h3>
-          <p className="text-teal-600">Enter the OTP sent to your registered mobile number</p>
+          <p className="text-teal-600">
+            Enter the OTP sent to {otpData?.responseData?.number}
+          </p>
         </div>
 
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="flex justify-center space-x-2">
             {otp.map((data, index) => {
               return (
@@ -52,8 +101,8 @@ const OTPVerificationPage = () => {
                   maxLength="1"
                   key={index}
                   value={data}
-                  onChange={e => handleChange(e.target, index)}
-                  onFocus={e => e.target.select()}
+                  onChange={(e) => handleChange(e.target, index)}
+                  onFocus={(e) => e.target.select()}
                 />
               );
             })}
@@ -71,9 +120,11 @@ const OTPVerificationPage = () => {
           <button
             onClick={handleResendOTP}
             disabled={timer > 0}
-            className={`text-sm ${timer > 0 ? 'text-teal-400' : 'text-teal-600 hover:text-teal-800'} font-medium`}
+            className={`text-sm ${
+              timer > 0 ? "text-teal-400" : "text-teal-600 hover:text-teal-800"
+            } font-medium`}
           >
-            Resend OTP {timer > 0 ? `in ${timer} seconds` : ''}
+            Resend OTP {timer > 0 ? `in ${timer} seconds` : ""}
           </button>
         </div>
       </div>

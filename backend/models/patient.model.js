@@ -11,11 +11,12 @@ const patientSchema = new mongoose.Schema({
   },
   otp: {
     type: String,
-    required: true,
+    required: false,
   },
   otpExpire: {
     type: Date,
-    required: true,
+    required: false,
+
   },
   UHID: {
     type: String,
