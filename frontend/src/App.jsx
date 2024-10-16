@@ -17,9 +17,13 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/otp-verify" element={<OTPVerificationPage />} />
-          <Route path="/dashboard" element={<PatientDashboard />} />
+          <Route path="/dashboard/:id" element={<PatientDashboard />} />
           <Route path="/reportUpload" element={<AdminReportUploadPortal />} />
-          <Route path="/userManagement" element={<AdminUserManagementDashboard />} />
+          <Route
+            path="/adminUserManagement"
+            element={<AdminUserManagementDashboard />}
+          />
+          
         </Routes>
         <Toaster />
       </BrowserRouter>

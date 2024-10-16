@@ -55,7 +55,7 @@ const LoginPage = () => {
         loginMethod === "uhid" ? { uhid: data.uhid } : { number: data.number };
 
       const response = await axios.post(
-        `${url}/api/v1/auth/send-otp-uhid`, // Ensure this endpoint handles both cases
+        `${url}/api/v1/auth/${loginMethod==="uhid"?"send-otp-uhid" :"sendOtp"}`, // Ensure this endpoint handles both cases
         requestData // Use the prepared data
       );
 

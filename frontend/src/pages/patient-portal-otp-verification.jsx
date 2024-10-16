@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import url from "../auth/url";
+import toast from "react-hot-toast";
 
 const OTPVerificationPage = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -11,8 +12,9 @@ const OTPVerificationPage = () => {
   const { otpData } = location.state || {};
 
   useEffect(() => {
-    console.log("number:", otpData?.number);
+    // console.log("number:", otpData?.number);
     console.log("response Data:", otpData?.responseData.otp);
+    console.log("response Data:", otpData?.responseData?.number);
   }, [otpData]);
 
   useEffect(() => {
@@ -53,13 +55,14 @@ const OTPVerificationPage = () => {
     try {
       const response = await axios.post(`${url}/api/v1/auth/verify-otp`, {
         otp: otpString,
-        number: otpData?.number,
+        number: otpData?.responseData?.number,
       });
 
-      console.log("Verification Response:", response.data);
+      console.log("Verification Response:", response);
       // Handle success (e.g., navigate to dashboard)
-      if (response.data.success) {
-        navigate("/dashboard"); // Redirect on success
+      if (response.status === 200) {
+        toast.success("Verified");
+        navigate(`/dashboard/${response.data.id}`); // Redirect on success
       } else {
         console.error("Error:", response.data.message); // Log error message
       }
@@ -68,7 +71,8 @@ const OTPVerificationPage = () => {
       // Handle error (e.g., show error message to user)
       if (error.response) {
         // Server responded with a status other than 200 range
-        console.error("Server Error:", error.response.data);
+        console.error("Server Error:", error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
         // Network error or other error
         console.error("Network Error:", error.message);
@@ -82,7 +86,7 @@ const OTPVerificationPage = () => {
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-teal-800">Verify OTP</h3>
           <p className="text-teal-600">
-            Enter the OTP sent to {otpData?.number}
+            Enter the OTP sent to {otpData?.responseData?.number}
           </p>
         </div>
 
