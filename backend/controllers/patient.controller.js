@@ -1,6 +1,9 @@
 import otpGenerator from "otp-generator";
 import Patient from "../models/patient.model.js";
 import jwt from "jsonwebtoken";
+import Report from "../models/report.model.js";
+
+
 
 export const sendOtp = async (req, res) => {
   const { number } = req.body;
@@ -101,7 +104,6 @@ export const getAllPatients = async (req, res) => {
   }
 };
 
-// Get a single patient by ID
 export const getPatientById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -121,7 +123,6 @@ export const registerPatient = async (req, res) => {
   const { name, number, UHID } = req.body;
 
   try {
-    // Check if patient already exists with the same number or UHID
     let patient = await Patient.findOne({ $or: [{ number }, { UHID }] });
     if (patient) {
       return res
@@ -129,7 +130,6 @@ export const registerPatient = async (req, res) => {
         .json({ message: "Patient with this number or UHID already exists" });
     }
 
-    // Create and save new patient
     patient = new Patient({ name, number, UHID });
     await patient.save();
 
@@ -140,5 +140,73 @@ export const registerPatient = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error registering patient", error: error.message });
+  }
+};
+
+
+
+
+
+//repoet protuios
+
+export const uploadReport = async (req, res) => {
+  const { uhidOrNumber, reportType, reportName } = req.body;
+  
+  try {
+    const patient = await Patient.findOne({
+      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }]
+    });
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const report = new Report({
+      reportType,
+      reportName,
+      reportLink: req.file.path 
+    });
+
+    await report.save();
+
+    patient.reports.push(report);
+    await patient.save();
+
+    res.status(201).json({ message: "Report uploaded successfully", report });
+  } catch (error) {
+    res.status(500).json({ message: "Error uploading report", error: error.message });
+  }
+};
+
+
+
+
+export const getPatientReports = async (req, res) => {
+  const { uhidOrNumber } = req.params;
+
+  try {
+    const patient = await Patient.findOne({
+      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }]
+    }).populate('reports');
+
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    const reports = patient.reports.map(report => ({
+      reportType: report.reportType,
+      reportName: report.reportName,
+      reportLink: report.reportLink,
+      status: report.status, 
+      date: report.createdAt 
+    }));
+
+    res.status(200).json({ patient, reports });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching patient reports', error: error.message });
   }
 };
