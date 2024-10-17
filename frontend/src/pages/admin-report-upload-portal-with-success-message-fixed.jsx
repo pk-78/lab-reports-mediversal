@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import url from '../auth/url';
 
 const AdminReportUploadPortal = () => {
   const [patientSearchTerm, setPatientSearchTerm] = useState('');
@@ -7,8 +9,10 @@ const AdminReportUploadPortal = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [selectedReports, setSelectedReports] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [users, setUsers] = useState([]);
 
-  // This would be fetched from the backend in a real application
   const allReports = {
     lab: [
       'Complete Blood Count', 'Lipid Profile', 'Liver Function Test', 
@@ -19,16 +23,43 @@ const AdminReportUploadPortal = () => {
     ]
   };
 
+
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${url}/api/v1/auth/patients`);
+        setUsers(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, []);
+
+
+
+
   const handlePatientSearch = (e) => {
     e.preventDefault();
-    // Simulating a patient search
-    setSelectedPatient({
-      name: "John Doe",
-      uhid: "UHID001",
-      mobile: "9876543210"
-    });
+    const searchTerm = patientSearchTerm.toLowerCase();
+
+
+    const foundPatient = users.find(patient =>
+      patient.UHID?.toLowerCase() === searchTerm || patient.number?.toLowerCase() === searchTerm
+    );
+
+    if (foundPatient) {
+      setSelectedPatient(foundPatient);
+    } else {
+      setSelectedPatient(null);
+    }
   };
 
+  // Toggle report selection
   const handleReportToggle = (reportName) => {
     setSelectedReports(prev => ({
       ...prev,
@@ -36,20 +67,21 @@ const AdminReportUploadPortal = () => {
     }));
   };
 
+  // Handle report upload
   const handleUpload = () => {
     console.log("Uploading reports:", selectedReports);
-    // In a real app, this would trigger an upload API call
-    // For now, we'll just show the success message
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000); // Hide after 3 seconds
   };
 
+  // Filter reports based on the search term
   const filterReports = (reports, searchTerm) => {
     return reports.filter(report => 
       report.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
 
+  // Render the report section (Lab or Diagnostic)
   const ReportSection = ({ title, reports, searchTerm, setSearchTerm, icon }) => (
     <div className="mb-8 bg-white rounded-lg shadow-md overflow-hidden">
       <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
@@ -106,11 +138,11 @@ const AdminReportUploadPortal = () => {
         </div>
         <div>
           <p className="text-sm text-gray-600">UHID</p>
-          <p className="font-medium">{patient ? patient.uhid : 'Not selected'}</p>
+          <p className="font-medium">{patient ? patient.UHID : 'Not selected'}</p>
         </div>
         <div>
           <p className="text-sm text-gray-600">Mobile Number</p>
-          <p className="font-medium">{patient ? patient.mobile : 'Not selected'}</p>
+          <p className="font-medium">{patient ? patient.number : 'Not selected'}</p>
         </div>
       </div>
     </div>
@@ -157,37 +189,38 @@ const AdminReportUploadPortal = () => {
             </div>
           </form>
 
-          <PatientCard patient={selectedPatient} />
+          {selectedPatient && <PatientCard patient={selectedPatient} />}
 
-          <ReportSection 
-            title="Lab Reports" 
-            reports={allReports.lab} 
+          <ReportSection
+            title="Lab Reports"
+            reports={allReports.lab}
             searchTerm={labSearchTerm}
             setSearchTerm={setLabSearchTerm}
-            icon={<svg className="h-6 w-6 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>}
+            icon={
+              <svg className="h-5 w-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12h6l3 8 4-16 3 8h6" />
+              </svg>
+            }
           />
-          <ReportSection 
-            title="Diagnostic Reports" 
+          <ReportSection
+            title="Diagnostic Reports"
             reports={allReports.diagnostic}
             searchTerm={diagnosticSearchTerm}
             setSearchTerm={setDiagnosticSearchTerm}
-            icon={<svg className="h-6 w-6 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-            </svg>}
+            icon={
+              <svg className="h-5 w-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            }
           />
-
-          <button
-            onClick={handleUpload}
-            className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition duration-150 ease-in-out flex items-center justify-center"
-            aria-label="Upload selected reports"
-          >
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            Upload Selected Reports
-          </button>
+          <div className="text-right mt-6">
+            <button
+              onClick={handleUpload}
+              className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out"
+            >
+              Upload Selected Reports
+            </button>
+          </div>
         </div>
       </div>
       {showSuccess && <SuccessMessage />}
