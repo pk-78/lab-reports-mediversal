@@ -47,34 +47,43 @@ const AdminLoginPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const [role, setRole] = useState("");
 
   const checkSubmit = async (data) => {
     console.log(data);
-    toast.success("login Successfull");
-        navigate("/adminUserManagement")
-    // try {
-        
-    //   Prepare data to send based on selected method
-    //   const requestData =
-    //     loginMethod === "uhid" ? { uhid: data.uhid } : { number: data.number };
 
-    //   const response = await axios.post(
-    //     `${url}/api/v1/auth/${loginMethod==="uhid"?"send-otp-uhid" :"sendOtp"}`, // Ensure this endpoint handles both cases
-    //     requestData // Use the prepared data
-    //   );
+    // navigate("/adminUserManagement");
+    try {
+      const response = await axios.post(
+        `${url}/api/v1/admin/login`, // Ensure this endpoint handles both cases
+        data // Use the prepared data
+      );
 
-    //   if (response.status === 200) {
-    //     console.log("OTP sent successfully");
-    //     toast.success("OTP sent successfully");
-    //     navigate("/otp-verify", { state: { otpData: {number: data.number, responseData: response.data} } });
-    //     console.log(response);
-    //   } else {
-    //     toast.error(response.response.data);
-    //   }
-    // } catch (error) {
-    //   console.log("Error sending OTP", error);
-    //   toast.error(error.response.data.message);
-    // }
+      if (response.status === 200) {
+        console.log("Login successfully");
+        toast.success("login Successfull");
+        const { adminUser, token } = response.data;
+        // navigate("/adminUserManagement");
+        // navigate("/otp-verify", {
+        //   state: {
+        //     otpData: { number: data.number, responseData: response.data },
+        //   },
+        // });
+
+        localStorage.setItem("role", adminUser.role);
+        localStorage.setItem("userData", token);
+        console.log(response);
+        adminUser.role === "Uploader"
+          ? navigate("/reportUpload")
+          : navigate("/adminUserManagement");
+      } else {
+        toast.error(response.response.data);
+      }
+    } catch (error) {
+      console.log("Error login", error);
+      toast.error("Login Failed");
+      toast.error(error.response.data.message);
+    }
   };
 
   return (
