@@ -20,7 +20,7 @@ patientRoute.get("/patients", getAllPatients);
 patientRoute.get("/patients/:id", getPatientById);
 patientRoute.post("/register", registerPatient);
 patientRoute.post('/upload-report', upload.single('reportFile'), uploadReport);
-patientRoute.get('/reports/:uhidOrNumber', getPatientReports);
+patientRoute.get('/reports/:id', getPatientReports);
 
 
 

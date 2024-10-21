@@ -177,17 +177,17 @@ export const uploadReport = async (req, res) => {
 };
 
 export const getPatientReports = async (req, res) => {
-  const { uhidOrNumber } = req.params;
+  const { id } = req.params; // Use 'id' from request parameters
 
   try {
-    const patient = await Patient.findOne({
-      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }],
-    }).populate("reports");
+    // Find patient by ID
+    const patient = await Patient.findById(id).populate("reports");
 
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
     }
 
+    // Mapping over reports to return structured data
     const reports = patient.reports.map((report) => ({
       reportType: report.reportType,
       reportName: report.reportName,
@@ -196,13 +196,13 @@ export const getPatientReports = async (req, res) => {
       date: report.createdAt,
     }));
 
+    // Return patient and their reports
     res.status(200).json({ patient, reports });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching patient reports",
-        error: error.message,
-      });
+    // Handle error during the process
+    res.status(500).json({
+      message: "Error fetching patient reports",
+      error: error.message,
+    });
   }
 };
