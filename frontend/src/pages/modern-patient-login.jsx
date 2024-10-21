@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios"; // Make sure axios is imported
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import url from "../auth/url"; // Ensure this URL is correct
 import toast from "react-hot-toast";
+import { sendMMS } from "../services/kailya";
 
 const UserIcon = () => (
   <svg
@@ -41,6 +42,8 @@ const PhoneIcon = () => (
 const LoginPage = () => {
   const [loginMethod, setLoginMethod] = useState("uhid");
   const navigate = useNavigate();
+
+  useEffect(() => {sendMMS()})
 
   const {
     register,
