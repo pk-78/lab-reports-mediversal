@@ -55,3 +55,40 @@ export const getAdminUserById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching admin user', error: error.message });
   }
 };
+
+
+export const loginAdminUser = async (req, res) => {
+  const { userId, password } = req.body;
+
+  try {
+    
+    const adminUser = await AdminUser.findOne({ userId });
+    if (!adminUser) {
+      return res.status(404).json({ message: 'User ID not found' });
+    }
+
+  
+    const isPasswordCorrect = await bcrypt.compare(password, adminUser.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: adminUser.userId, role: adminUser.role }, JWT_SECRET, {
+      expiresIn: '1h', // Token expiration time
+    });
+
+    // Respond with the token and user details
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      adminUser: {
+        name: adminUser.name,
+        userId: adminUser.userId,
+        role: adminUser.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging in', error: error.message });
+  }
+};
