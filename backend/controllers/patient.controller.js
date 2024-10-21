@@ -1,8 +1,15 @@
-import otpGenerator from "otp-generator";
-import Patient from "../models/patient.model.js";
 import jwt from "jsonwebtoken";
-import Report from "../models/report.model.js";
+import otpGenerator from "otp-generator";
+import twilio from "twilio";
+import Patient from "../models/patient.model.js";
 
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+const client = twilio(accountSid, authToken);
+
+// Send OTP
 export const sendOtp = async (req, res) => {
   const { number } = req.body;
 
@@ -23,9 +30,23 @@ export const sendOtp = async (req, res) => {
   patient.otpExpire = otpExpire;
   await patient.save();
 
-  res.status(200).json({ message: "OTP sent successfully", otp, number });
+  // Use Twilio to send the OTP via SMS
+  try {
+    await client.messages.create({
+      body: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
+      from: twilioPhoneNumber,
+      to: number,
+    });
+
+    res.status(200).json({ message: "OTP sent successfully", number });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to send OTP", error: error.message });
+  }
 };
 
+// Verify OTP
 export const verifyOtp = async (req, res) => {
   const { number, otp } = req.body;
 
@@ -54,6 +75,7 @@ export const verifyOtp = async (req, res) => {
   res.status(200).json({ message: "OTP verified successfully", token, id });
 };
 
+// Send OTP by UHID
 export const sendOtpByUHID = async (req, res) => {
   const { uhid } = req.body;
 
@@ -82,11 +104,23 @@ export const sendOtpByUHID = async (req, res) => {
   patient.otpExpire = otpExpire;
   await patient.save();
 
-  res.status(200).json({
-    message: "OTP sent successfully to registered phone number",
-    otp,
-    number: patient.number,
-  });
+  // Send OTP via SMS using Twilio
+  try {
+    await client.messages.create({
+      body: ` Your OTP code is ${otp}. It will expire in 5 minutes.`,
+      from: twilioPhoneNumber,
+      to: patient.number,
+    });
+
+    res.status(200).json({
+      message: "OTP sent successfully to registered phone number",
+      number: patient.number,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to send OTP", error: error.message });
+  }
 };
 
 export const getAllPatients = async (req, res) => {

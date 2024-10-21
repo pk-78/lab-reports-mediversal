@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import url from "../auth/url"; // Ensure this URL is correct
 import toast from "react-hot-toast";
-import { sendMMS } from "../services/kailya";
+// import { sendMMS } from "../services/kailya";
 
 const UserIcon = () => (
   <svg
@@ -43,7 +43,7 @@ const LoginPage = () => {
   const [loginMethod, setLoginMethod] = useState("uhid");
   const navigate = useNavigate();
 
-  useEffect(() => {sendMMS()})
+  // useEffect(() => {sendMMS()})
 
   const {
     register,
