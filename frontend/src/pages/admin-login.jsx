@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios"; // Make sure axios is imported
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import url from "../auth/url"; // Ensure this URL is correct
 import toast from "react-hot-toast";
-import { sendMMS } from "../services/kailya";
 
 const UserIcon = () => (
   <svg
@@ -39,54 +38,56 @@ const PhoneIcon = () => (
   </svg>
 );
 
-const LoginPage = () => {
-  const [loginMethod, setLoginMethod] = useState("uhid");
+const AdminLoginPage = () => {
+  const [loginMethod, setLoginMethod] = useState("uploader");
   const navigate = useNavigate();
-
-  useEffect(() => {sendMMS()})
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const [role, setRole] = useState("");
 
   const checkSubmit = async (data) => {
-    try {
-      // Prepare data to send based on selected method
-      const requestData =
-        loginMethod === "uhid" ? { uhid: data.uhid } : { number: data.number };
+    console.log(data);
 
+    // navigate("/adminUserManagement");
+    try {
       const response = await axios.post(
-        `${url}/api/v1/auth/${
-          loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
-        }`, // Ensure this endpoint handles both cases
-        requestData // Use the prepared data
+        `${url}/api/v1/admin/login`, // Ensure this endpoint handles both cases
+        data // Use the prepared data
       );
 
       if (response.status === 200) {
-        console.log("OTP sent successfully");
-        toast.success("OTP sent successfully");
-        navigate("/otp-verify", {
-          state: {
-            otpData: { number: data.number, responseData: response.data },
-          },
-        });
+        console.log("Login successfully");
+        toast.success("login Successfull");
+        const { adminUser, token } = response.data;
+        // navigate("/adminUserManagement");
+        // navigate("/otp-verify", {
+        //   state: {
+        //     otpData: { number: data.number, responseData: response.data },
+        //   },
+        // });
+
+        localStorage.setItem("role", adminUser.role);
+        localStorage.setItem("userData", token);
         console.log(response);
+        adminUser.role === "Uploader"
+          ? navigate("/reportUpload")
+          : navigate("/adminUserManagement");
       } else {
         toast.error(response.response.data);
       }
     } catch (error) {
-      console.log("Error sending OTP", error);
+      console.log("Error login", error);
+      toast.error("Login Failed");
       toast.error(error.response.data.message);
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center p-4">
-      <button onClick={()=>{navigate("/admin-login")}} className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500">
-        login as admin
-      </button>
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
         {/* Hero Section */}
         <div className="md:w-1/2 bg-teal-600 p-8 text-white">
@@ -124,7 +125,9 @@ const LoginPage = () => {
         {/* Login Form */}
         <div className="md:w-1/2 p-8">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-teal-800">Patient Portal</h3>
+            <h3 className="text-2xl font-bold text-teal-800">
+              Admin Login Portal
+            </h3>
             <p className="text-teal-600">
               Enter your details to access your account
             </p>
@@ -135,23 +138,33 @@ const LoginPage = () => {
             <div className="bg-teal-100 rounded-full p-1">
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
-                  loginMethod === "uhid"
+                  loginMethod === "uploader"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"
                 }`}
-                onClick={() => setLoginMethod("uhid")}
+                onClick={() => setLoginMethod("uploader")}
               >
-                UHID
+                Uploader
               </button>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
-                  loginMethod === "mobile"
+                  loginMethod === "admin"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"
                 }`}
-                onClick={() => setLoginMethod("mobile")}
+                onClick={() => setLoginMethod("admin")}
               >
-                Mobile
+                Admin
+              </button>
+              <button
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
+                  loginMethod === "superadmin"
+                    ? "bg-teal-500 text-white"
+                    : "text-teal-800"
+                }`}
+                onClick={() => setLoginMethod("superadmin")}
+              >
+                Super Admin
               </button>
             </div>
           </div>
@@ -159,30 +172,46 @@ const LoginPage = () => {
           <form className="space-y-6" onSubmit={handleSubmit(checkSubmit)}>
             <div>
               <label className="block text-sm font-medium text-teal-700 mb-1">
-                {loginMethod === "uhid" ? "UHID" : "Mobile Number"}
+                User Id
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-teal-500">
-                  {loginMethod === "uhid" ? <UserIcon /> : <PhoneIcon />}
+                  <UserIcon />
                 </div>
                 <input
-                  type={loginMethod === "uhid" ? "text" : "tel"}
+                  type="text"
                   className="pl-10 block w-full border-teal-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
-                  placeholder={
-                    loginMethod === "uhid"
-                      ? "Enter your UHID"
-                      : "Enter your mobile number"
-                  }
-                  {...register(loginMethod === "uhid" ? "uhid" : "number", {
+                  placeholder="Enter your UserId"
+                  {...register("userId", {
                     required: "This field is required",
                   })}
                 />
-                {errors[loginMethod === "uhid" ? "uhid" : "number"] && (
+                {errors["userId"] && (
+                  <p className="text-red-500 text-xs mt-0">
+                    {errors["userId"]?.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-teal-700 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-teal-500">
+                  <UserIcon />
+                </div>
+                <input
+                  type="password"
+                  className="pl-10 block w-full border-teal-300 rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                  placeholder="Enter your Password"
+                  {...register("password", {
+                    required: "This field is required",
+                  })}
+                />
+                {errors["password"] && (
                   <p className="text-red-500 text-xs mt-1">
-                    {
-                      errors[loginMethod === "uhid" ? "uhid" : "number"]
-                        ?.message
-                    }
+                    {errors["password"]?.message}
                   </p>
                 )}
               </div>
@@ -192,7 +221,7 @@ const LoginPage = () => {
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
               >
-                Send OTP
+                Login
               </button>
             </div>
           </form>
@@ -202,4 +231,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default AdminLoginPage;

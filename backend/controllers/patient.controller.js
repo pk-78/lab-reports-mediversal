@@ -3,8 +3,6 @@ import Patient from "../models/patient.model.js";
 import jwt from "jsonwebtoken";
 import Report from "../models/report.model.js";
 
-
-
 export const sendOtp = async (req, res) => {
   const { number } = req.body;
 
@@ -25,7 +23,7 @@ export const sendOtp = async (req, res) => {
   patient.otpExpire = otpExpire;
   await patient.save();
 
-  res.status(200).json({ message: "OTP sent successfully", otp,number });
+  res.status(200).json({ message: "OTP sent successfully", otp, number });
 };
 
 export const verifyOtp = async (req, res) => {
@@ -50,7 +48,7 @@ export const verifyOtp = async (req, res) => {
 
   patient.otp = undefined;
   patient.otpExpire = undefined;
-  const id= patient._id;
+  const id = patient._id;
   await patient.save();
 
   res.status(200).json({ message: "OTP verified successfully", token, id });
@@ -84,13 +82,11 @@ export const sendOtpByUHID = async (req, res) => {
   patient.otpExpire = otpExpire;
   await patient.save();
 
-  res
-    .status(200)
-    .json({
-      message: "OTP sent successfully to registered phone number",
-      otp,
-      number: patient.number,
-    });
+  res.status(200).json({
+    message: "OTP sent successfully to registered phone number",
+    otp,
+    number: patient.number,
+  });
 };
 
 export const getAllPatients = async (req, res) => {
@@ -143,18 +139,14 @@ export const registerPatient = async (req, res) => {
   }
 };
 
-
-
-
-
 //repoet protuios
 
 export const uploadReport = async (req, res) => {
-  const { uhidOrNumber, reportType, reportName } = req.body;
-  
+  const { uhidOrNumber, reportType, reportName, reportLink } = req.body;
+
   try {
     const patient = await Patient.findOne({
-      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }]
+      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }],
     });
 
     if (!patient) {
@@ -168,7 +160,7 @@ export const uploadReport = async (req, res) => {
     const report = new Report({
       reportType,
       reportName,
-      reportLink: req.file.path 
+      reportLink: req.file.path,
     });
 
     await report.save();
@@ -178,35 +170,39 @@ export const uploadReport = async (req, res) => {
 
     res.status(201).json({ message: "Report uploaded successfully", report });
   } catch (error) {
-    res.status(500).json({ message: "Error uploading report", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error uploading report", error: error.message });
   }
 };
 
-
-
-
 export const getPatientReports = async (req, res) => {
-  const { uhidOrNumber } = req.params;
+  const { id } = req.params; // Use 'id' from request parameters
 
   try {
-    const patient = await Patient.findOne({
-      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }]
-    }).populate('reports');
+    // Find patient by ID
+    const patient = await Patient.findById(id).populate("reports");
 
     if (!patient) {
-      return res.status(404).json({ message: 'Patient not found' });
+      return res.status(404).json({ message: "Patient not found" });
     }
 
-    const reports = patient.reports.map(report => ({
+    // Mapping over reports to return structured data
+    const reports = patient.reports.map((report) => ({
       reportType: report.reportType,
       reportName: report.reportName,
       reportLink: report.reportLink,
-      status: report.status, 
-      date: report.createdAt 
+      status: report.status,
+      date: report.createdAt,
     }));
 
+    // Return patient and their reports
     res.status(200).json({ patient, reports });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching patient reports', error: error.message });
+    // Handle error during the process
+    res.status(500).json({
+      message: "Error fetching patient reports",
+      error: error.message,
+    });
   }
 };
