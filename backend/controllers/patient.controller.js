@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import twilio from "twilio";
 import Patient from "../models/patient.model.js";
+import Report from "../models/report.model.js";
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;

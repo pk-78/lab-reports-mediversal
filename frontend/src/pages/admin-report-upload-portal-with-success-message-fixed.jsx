@@ -108,6 +108,7 @@ const AdminReportUploadPortal = () => {
       formData.append("uhidOrNumber", selectedPatient.number); // Append patient number/UHID
       formData.append("reportType", selectedReportType);
       formData.append("reportName", selectedReport);
+      console.log(formData);
 
       // Make an axios call to upload the file and metadata
       const response = await axios.post(
