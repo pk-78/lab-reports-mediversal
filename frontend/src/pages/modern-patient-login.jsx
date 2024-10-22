@@ -52,6 +52,9 @@ const LoginPage = () => {
   } = useForm();
 
   const checkSubmit = async (data) => {
+    console.log( `${url}/api/v1/auth/${
+      loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
+    }`)
     try {
       // Prepare data to send based on selected method
       const requestData =
@@ -63,6 +66,9 @@ const LoginPage = () => {
         }`, // Ensure this endpoint handles both cases
         requestData // Use the prepared data
       );
+      console.log( `${url}/api/v1/auth/${
+        loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
+      }`)
 
       if (response.status === 200) {
         console.log("OTP sent successfully");

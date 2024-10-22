@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import url from "../auth/url";
+import { useNavigate } from "react-router-dom";
 
 const AdminReportUploadPortal = () => {
   const [patientSearchTerm, setPatientSearchTerm] = useState("");
@@ -14,6 +15,7 @@ const AdminReportUploadPortal = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   const labReports = [
     "Complete Blood Count",
@@ -246,7 +248,17 @@ const AdminReportUploadPortal = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <button
+        onClick={() => {
+          localStorage.removeItem("userData");
+          localStorage.removeItem("role");
+          navigate("/");
+        }}
+        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500"
+      >
+        Logout
+      </button>
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="bg-gradient-to-r mb-6 rounded-md from-teal-500 to-teal-600 p-6">
           <h1 className="text-3xl  font-bold text-white">
