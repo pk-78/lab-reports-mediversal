@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import url from "../auth/url"; // Ensure this URL is correct
 import toast from "react-hot-toast";
-import { sendMMS } from "../services/kailya";
+// import { sendMMS } from "../services/kailya";
 
 const UserIcon = () => (
   <svg
@@ -43,7 +43,7 @@ const LoginPage = () => {
   const [loginMethod, setLoginMethod] = useState("uhid");
   const navigate = useNavigate();
 
-  useEffect(() => {sendMMS()})
+  // useEffect(() => {sendMMS()})
 
   const {
     register,
@@ -52,6 +52,11 @@ const LoginPage = () => {
   } = useForm();
 
   const checkSubmit = async (data) => {
+    console.log(
+      `${url}/api/v1/auth/${
+        loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
+      }`
+    );
     try {
       // Prepare data to send based on selected method
       const requestData =
@@ -62,6 +67,11 @@ const LoginPage = () => {
           loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
         }`, // Ensure this endpoint handles both cases
         requestData // Use the prepared data
+      );
+      console.log(
+        `${url}/api/v1/auth/${
+          loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
+        }`
       );
 
       if (response.status === 200) {
@@ -84,8 +94,13 @@ const LoginPage = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center p-4">
-      <button onClick={()=>{navigate("/admin-login")}} className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500">
-        login as admin
+      <button
+        onClick={() => {
+          navigate("/admin-login");
+        }}
+        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500"
+      >
+        Login as Admin
       </button>
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
         {/* Hero Section */}

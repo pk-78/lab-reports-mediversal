@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import url from "../auth/url";
+import { useNavigate } from "react-router-dom";
 
 const AdminUserManagementDashboard = () => {
   const [newUser, setNewUser] = useState({
@@ -15,11 +16,12 @@ const AdminUserManagementDashboard = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [loading, setLoading]=useState();
+  const [loading, setLoading] = useState();
+  const navigate = useNavigate();
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
-    
+
     if (editingUser) {
       setUsers(
         users.map((user) =>
@@ -31,14 +33,17 @@ const AdminUserManagementDashboard = () => {
       try {
         const newUserWithId = { ...newUser };
         // POST the new user data to the backend API
-        const response = await axios.post(`${url}/api/v1/admin/admin-users`, newUserWithId);
-        
+        const response = await axios.post(
+          `${url}/api/v1/admin/admin-users`,
+          newUserWithId
+        );
+
         // Log the response or user data to the console
         console.log(response.data);
 
         // Add the new user to the local state if the POST request succeeds
         setUsers([...users, newUserWithId]);
-        toast.success("User created successfully!")
+        toast.success("User created successfully!");
         setSuccessMessage("User created successfully!");
       } catch (error) {
         console.error("Error creating user:", error);
@@ -58,12 +63,11 @@ const AdminUserManagementDashboard = () => {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  useEffect(()=>{
-
+  useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${url}/api/v1/admin/admin-users`);
-        console.log(response)
+        console.log(response);
         setUsers(response.data);
       } catch (err) {
         setError(err.message);
@@ -73,8 +77,7 @@ const AdminUserManagementDashboard = () => {
     };
 
     fetchUserData();
-
-  },[])
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -125,7 +128,17 @@ const AdminUserManagementDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 sm:p-6 lg:p-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 sm:p-6 lg:p-8">
+      <button
+        onClick={() => {
+          localStorage.removeItem("userData");
+          localStorage.removeItem("role");
+          navigate("/");
+        }}
+        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500"
+      >
+        Logout
+      </button>
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-8">
           <h1 className="text-4xl font-extrabold text-white tracking-wide">

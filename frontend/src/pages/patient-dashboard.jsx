@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import url from "../auth/url";
 
 // const samplePatient = {
@@ -42,6 +42,7 @@ const PatientDashboard = ({
   const [loading, setLoading] = useState();
   const { id } = useParams();
   const [patientReportData, setPatientReportData] = useState();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -102,9 +103,9 @@ const PatientDashboard = ({
   const ReportCard = ({ id, title, date, status, reportLink }) => {
     // Adjust the URL if necessary, assuming `url` is the base URL of your server.
     const formattedReportLink = `${url}/${reportLink.replace(/\\/g, "/")}`;
-    console.log(formattedReportLink)
-    console.log(reportLink)
-  
+    console.log(formattedReportLink);
+    console.log(reportLink);
+
     return (
       <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
         <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
@@ -145,7 +146,6 @@ const PatientDashboard = ({
       </div>
     );
   };
-  
 
   const sortReports = (reports) => {
     return [...reports].sort((a, b) => {
@@ -169,7 +169,12 @@ const PatientDashboard = ({
           <h1 className="text-2xl font-bold">Patient Portal</h1>
           <div className="flex items-center space-x-4">
             <span>{patientdata.name}</span>
-            <button className="bg-teal-700 px-3 py-1 rounded hover:bg-teal-800">
+            <button
+              className="bg-teal-700 px-3 py-1 rounded hover:bg-teal-800"
+              onClick={() => {
+                navigate("/");
+              }}
+            >
               Logout
             </button>
           </div>
