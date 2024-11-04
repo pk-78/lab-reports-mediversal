@@ -22,7 +22,7 @@ const reportSchema = new mongoose.Schema({
       "ECG",
       "EEG",
     ],
-    required: true,
+    // required: true,
   },
   reportLink: {
     type: String,
@@ -30,6 +30,6 @@ const reportSchema = new mongoose.Schema({
   },
 });
 
-const Report = mongoose.model("Report",reportSchema)
+const Report = mongoose.model("Report", reportSchema);
 
-export default Report
+export default Report;

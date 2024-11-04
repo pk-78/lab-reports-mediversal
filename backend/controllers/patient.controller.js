@@ -242,17 +242,13 @@ export const getPatientReports = async (req, res) => {
   }
 };
 
-
-
-
-
 export const uploadMultipleReports = async (req, res) => {
   const { uhidOrNumber, reportType } = req.body;
 
   try {
     // Find the patient by UHID or number
     const patient = await Patient.findOne({
-      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }]
+      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }],
     });
 
     if (!patient) {
@@ -269,7 +265,7 @@ export const uploadMultipleReports = async (req, res) => {
         const report = new Report({
           reportType,
           reportLink: file.path, // store file path
-          reportName: file.originalname, // Optional: Set reportName to original file name
+          // reportName: file.originalname, // Optional: Set reportName to original file name
         });
         await report.save();
         patient.reports.push(report);
@@ -281,6 +277,8 @@ export const uploadMultipleReports = async (req, res) => {
 
     res.status(201).json({ message: "Reports uploaded successfully", reports });
   } catch (error) {
-    res.status(500).json({ message: "Error uploading reports", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error uploading reports", error: error.message });
   }
 };
