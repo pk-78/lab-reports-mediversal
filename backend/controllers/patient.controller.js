@@ -241,3 +241,46 @@ export const getPatientReports = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+export const uploadMultipleReports = async (req, res) => {
+  const { uhidOrNumber, reportType } = req.body;
+
+  try {
+    // Find the patient by UHID or number
+    const patient = await Patient.findOne({
+      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }]
+    });
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
+    }
+
+    // Loop through each uploaded file and save it as a report without `reportName`
+    const reports = await Promise.all(
+      req.files.map(async (file) => {
+        const report = new Report({
+          reportType,
+          reportLink: file.path, // store file path
+          reportName: file.originalname, // Optional: Set reportName to original file name
+        });
+        await report.save();
+        patient.reports.push(report);
+        return report;
+      })
+    );
+
+    await patient.save();
+
+    res.status(201).json({ message: "Reports uploaded successfully", reports });
+  } catch (error) {
+    res.status(500).json({ message: "Error uploading reports", error: error.message });
+  }
+};

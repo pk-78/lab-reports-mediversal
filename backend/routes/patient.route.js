@@ -6,6 +6,7 @@ import {
   registerPatient,
   sendOtp,
   sendOtpByUHID,
+  uploadMultipleReports,
   uploadReport,
   verifyOtp,
 } from "../controllers/patient.controller.js";
@@ -21,6 +22,8 @@ patientRoute.get("/patients/:id", getPatientById);
 patientRoute.post("/register", registerPatient);
 patientRoute.post('/upload-report', upload.single('reportFile'), uploadReport);
 patientRoute.get('/reports/:id', getPatientReports);
+patientRoute.post('/upload-multiple-reports', upload, uploadMultipleReports);
+
 
 
 
