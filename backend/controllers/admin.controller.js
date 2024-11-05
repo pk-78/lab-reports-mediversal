@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import AdminUser from "../models/admin.model.js";
 import jwt from "jsonwebtoken";
 
-
 // Create new Admin User
 export const createAdminUser = async (req, res) => {
   const { name, userId, password, role } = req.body;

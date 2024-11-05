@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import url from "../auth/url";
+import reportLink from "path";
 
 // const samplePatient = {
 //   name: "Aarav Patel",
@@ -43,6 +44,7 @@ const PatientDashboard = ({
   const { id } = useParams();
   const [patientReportData, setPatientReportData] = useState();
   const navigate = useNavigate();
+  const [viewData, setViewData] = useState(false);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -103,11 +105,11 @@ const PatientDashboard = ({
   const ReportCard = ({ id, title, date, status, reportLink }) => {
     // Adjust the URL if necessary, assuming `url` is the base URL of your server.
     const formattedReportLink = `${url}/${reportLink.replace(/\\/g, "/")}`;
-    console.log(formattedReportLink);
-    console.log(reportLink);
+    // console.log(formattedReportLink);
+    // console.log(reportLink);
 
     return (
-      <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+      <div className=" bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
         <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
         <p className="text-sm text-gray-600">Date: {date}</p>
         <span
@@ -121,7 +123,7 @@ const PatientDashboard = ({
         </span>
         <div className="mt-4 flex justify-between items-center">
           <button
-            onClick={() => console.log(`View report: ${title}`)}
+            onClick={() => window.open(reportLink, "_blank")}
             className="text-teal-600 hover:text-teal-800"
           >
             View
@@ -133,7 +135,7 @@ const PatientDashboard = ({
             Download
           </button>
         </div>
-        {reportLink && (
+        {viewData && (
           <div className="mt-4">
             <img
               // src={formattedReportLink}

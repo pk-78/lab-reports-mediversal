@@ -3,6 +3,13 @@ import otpGenerator from "otp-generator";
 import twilio from "twilio";
 import Patient from "../models/patient.model.js";
 import Report from "../models/report.model.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -175,7 +182,6 @@ export const registerPatient = async (req, res) => {
 };
 
 //repoet protuios
-
 export const uploadReport = async (req, res) => {
   const { uhidOrNumber, reportType, reportName, reportLink } = req.body;
 
@@ -192,10 +198,15 @@ export const uploadReport = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
+    // Generate a URL for the uploaded file
+    const reportLink = `${req.protocol}://${req.get("host")}/reports/${
+      req.file.filename
+    }`;
+
     const report = new Report({
       reportType,
       reportName,
-      reportLink: req.file.path,
+      reportLink, // Save the file URL in MongoDB
     });
 
     await report.save();
@@ -205,6 +216,7 @@ export const uploadReport = async (req, res) => {
 
     res.status(201).json({ message: "Report uploaded successfully", report });
   } catch (error) {
+    console.error(error); // Log the error for debugging
     res
       .status(500)
       .json({ message: "Error uploading report", error: error.message });
