@@ -7,10 +7,11 @@ const AdminReportUploadPortal = () => {
   const [patientSearchTerm, setPatientSearchTerm] = useState("");
   const [labSearchTerm, setLabSearchTerm] = useState("");
   const [diagnosticSearchTerm, setDiagnosticSearchTerm] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState("");
   const [selectedReport, setSelectedReport] = useState(""); // Store only one report type
   const [selectedReportType, setSelectedReportType] = useState(""); // Use useState to declare this
   const [file, setFile] = useState(null); // Store the file to be uploaded
+  const [multipleFiles, setMultipleFiles] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -69,10 +70,10 @@ const AdminReportUploadPortal = () => {
     const foundPatient = users.find(
       (patient) =>
         patient.UHID?.toLowerCase() === searchTerm ||
-        patient.number?.toLowerCase() === "+91"+searchTerm
+        patient.number?.toLowerCase() === "+91" + searchTerm
     );
 
-    setSelectedPatient(foundPatient || null);
+    // setSelectedPatient(foundPatient || null);
   };
 
   // Toggle report selection
@@ -124,6 +125,49 @@ const AdminReportUploadPortal = () => {
       console.log(`Upload response for ${selectedReport}:`, response.data);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      setError(err.message);
+      console.error("Error uploading report:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMultipleUpload = async (e) => {
+    e.preventDefault();
+
+    if (multipleFiles.length === 0) {
+      alert("Please select a file to upload.");
+      return;
+    }
+
+    if (!selectedPatient) {
+      alert("Please select a patient before uploading.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      multipleFiles.forEach((file) => {
+        formData.append("reports", file); // Append each file individually
+      });
+      formData.append("uhidOrNumber", selectedPatient.number); // Append patient number/UHID
+
+      const response = await axios.post(
+        `${url}/api/v1/auth/upload-multiple-reports`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(`Upload response for reports:`, response.data);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+      setMultipleFiles([]);
     } catch (err) {
       setError(err.message);
       console.error("Error uploading report:", err);
@@ -229,6 +273,64 @@ const AdminReportUploadPortal = () => {
     </div>
   );
 
+  const SearchedPatient = () => {
+    if (selectedPatient !== "") return null;
+    const filteredPatients = users.filter(
+      (patient) =>
+        patient.UHID?.toLowerCase().includes(patientSearchTerm.toLowerCase()) ||
+        patient.number?.toLowerCase().includes(patientSearchTerm.toLowerCase())
+    );
+    return (
+      <div className="my-4">
+        {filteredPatients.length > 0 ? (
+          <table className="min-w-full bg-white border border-gray-300 rounded-md">
+            <thead>
+              <tr className="text-left">
+                <th className="py-3 px-6 border-b text-left font-semibold">
+                  Name
+                </th>
+                <th className="py-3 px-6 border-b text-left font-semibold">
+                  UHID
+                </th>
+                <th className="py-3 px-6 border-b text-left font-semibold">
+                  Number
+                </th>
+                <th className="py-3 px-6 border-b text-left font-semibold">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPatients.map((patient) => (
+                <tr key={patient.UHID} className="hover:bg-gray-100">
+                  <td className="py-3 px-6 text-left border-b">
+                    {patient.name}
+                  </td>
+                  <td className="py-3 px-6 text-left border-b">
+                    {patient.UHID}
+                  </td>
+                  <td className="py-3 px-6 text-left border-b">
+                    {patient.number}
+                  </td>
+                  <td className="py-3 px-6 text-left border-b">
+                    <button
+                      onClick={() => setSelectedPatient(patient || null)}
+                      className="rounded bg-teal-600 text-white py-1 px-4"
+                    >
+                      Manage
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="text-gray-500">No matching patients found</p>
+        )}
+      </div>
+    );
+  };
+
   const SuccessMessage = () => (
     <div className="fixed bottom-5 right-5 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg flex items-center">
       <svg
@@ -247,21 +349,25 @@ const AdminReportUploadPortal = () => {
       Reports uploaded successfully!
     </div>
   );
+  const handleMultipleFileChange = (e) => {
+    const filesArray = Array.from(e.target.files); // Convert FileList to an array
+    setMultipleFiles(filesArray);
+  };
 
   return (
-    <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="relative  ">
       <button
         onClick={() => {
           localStorage.removeItem("userData");
           localStorage.removeItem("role");
           navigate("/");
         }}
-        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500"
+        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-700 hover:bg-teal-800 focus:outline-none  focus:ring-teal-500"
       >
         Logout
       </button>
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="bg-gradient-to-r mb-6 rounded-md from-teal-500 to-teal-600 p-6">
+      <div className="bg-white px-2  shadow-md">
+        <div className="bg-gradient-to-r mb-6 from-teal-500 to-teal-600 p-6">
           <h1 className="text-3xl  font-bold text-white">
             Upload Patient Reports
           </h1>
@@ -276,16 +382,36 @@ const AdminReportUploadPortal = () => {
               onChange={(e) => setPatientSearchTerm(e.target.value)}
               className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
-            <button
-              type="submit"
-              className="ml-4 px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-150"
-            >
-              Search
-            </button>
+            {selectedPatient !== "" && (
+              <button
+                onClick={() => setSelectedPatient("")}
+                className="ml-4 px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-150"
+              >
+                Search Other Patient
+              </button>
+            )}
           </div>
         </form>
 
         {selectedPatient && <PatientCard patient={selectedPatient} />}
+
+        {patientSearchTerm && <SearchedPatient />}
+
+        {selectedPatient && <div className="flex justify-end">
+          <input
+            type="file"
+            onChange={handleMultipleFileChange}
+            disabled={loading}
+            multiple
+            className=""
+          />
+          <button
+            onClick={handleMultipleUpload}
+            className=" px-6 py-3 text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
+          >
+            {loading ? "Uploading..." : "Bulk Upload"}
+          </button>
+        </div>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ReportSection
@@ -334,17 +460,19 @@ const AdminReportUploadPortal = () => {
           />
         </div>
 
-        <div className="mt-8 flex justify-end">
-          <button
-            onClick={handleUpload}
-            disabled={loading}
-            className={`px-6 py-3 text-white rounded-md shadow-md ${
-              loading ? "bg-gray-400" : "bg-teal-600 hover:bg-teal-700"
-            } transition-colors duration-150`}
-          >
-            {loading ? "Uploading..." : "Upload Reports"}
-          </button>
-        </div>
+        {selectedPatient && (
+          <div className="mt-8 flex justify-end">
+            <button
+              onClick={handleUpload}
+              disabled={loading}
+              className={`px-6 py-3 text-white rounded-md shadow-md ${
+                loading ? "bg-gray-400" : "bg-teal-600 hover:bg-teal-700"
+              } transition-colors duration-150`}
+            >
+              {loading ? "Uploading..." : "Upload Reports"}
+            </button>
+          </div>
+        )}
 
         {showSuccess && <SuccessMessage />}
         {error && (

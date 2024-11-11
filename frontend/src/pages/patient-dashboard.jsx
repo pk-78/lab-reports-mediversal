@@ -51,7 +51,7 @@ const PatientDashboard = ({
       setLoading(true);
       try {
         const response = await axios.get(`${url}/api/v1/auth/patients/${id}`);
-        console.log(response);
+        // console.log(response);
         setPatientData(response.data);
       } catch (err) {
         // setError(err.message);
@@ -67,7 +67,7 @@ const PatientDashboard = ({
 
       try {
         const response = await axios.get(`${url}/api/v1/auth/reports/${id}`);
-        console.log(response.data.reports);
+        // console.log(response.data.reports);
         setPatientReportData(response.data.reports);
       } catch (err) {
         console.log(err);
@@ -103,15 +103,16 @@ const PatientDashboard = ({
   );
 
   const ReportCard = ({ id, title, date, status, reportLink }) => {
-    // Adjust the URL if necessary, assuming `url` is the base URL of your server.
-    const formattedReportLink = `${url}/${reportLink.replace(/\\/g, "/")}`;
-    // console.log(formattedReportLink);
-    // console.log(reportLink);
+    const formattedReportLink = `${reportLink.replace(/\\/g, "/")}`; // Normalize the link
+
+    const [datePart, timePart] = date ? date.split("T") : ["N/A", "N/A"];
+    const time = timePart?.split(".")[0] || "N/A"; // Handle missing time part
 
     return (
-      <div className=" bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
+      <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
         <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-600">Date: {date}</p>
+        <p className="text-sm text-gray-600">Date: {datePart}</p>
+        <p className="text-sm text-gray-600">Time: {time}</p>
         <span
           className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded ${
             status === "Ready"
@@ -129,7 +130,7 @@ const PatientDashboard = ({
             View
           </button>
           <button
-            onClick={() => console.log(`Downloading report: ${title}`)}
+            onClick={() => downloadReport(reportLink, title)}
             className="bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
           >
             Download
@@ -138,8 +139,7 @@ const PatientDashboard = ({
         {viewData && (
           <div className="mt-4">
             <img
-              // src={formattedReportLink}
-              src={reportLink}
+              src={formattedReportLink}
               alt="Report"
               className="w-full h-auto rounded-lg shadow"
             />
@@ -147,6 +147,13 @@ const PatientDashboard = ({
         )}
       </div>
     );
+  };
+
+  const downloadReport = (fileUrl, filename) => {
+    const link = document.createElement("a");
+    link.href = fileUrl; // The link to the file
+    link.download = filename; // The filename to save the file as
+    link.click(); // Trigger the download
   };
 
   const sortReports = (reports) => {
@@ -207,7 +214,8 @@ const PatientDashboard = ({
             <nav className="flex space-x-2 px-4 py-2" aria-label="Tabs">
               <TabButton id="lab" label="Lab Reports" />
               <TabButton id="diagnostics" label="Diagnostic Report" />
-              <TabButton
+              <TabButton id="otherReport" label="Other Reports" />
+              {/* <TabButton
                 id="appointments"
                 label="Appointments"
                 comingSoon={true}
@@ -222,11 +230,13 @@ const PatientDashboard = ({
                 label="Discharge Summary"
                 comingSoon={true}
               />
-              <TabButton id="bills" label="Bills" comingSoon={true} />
+              <TabButton id="bills" label="Bills" comingSoon={true} /> */}
             </nav>
           </div>
 
-          {(activeTab === "lab" || activeTab === "diagnostics") && (
+          {(activeTab === "lab" ||
+            activeTab === "diagnostics" ||
+            activeTab === "otherReport") && (
             <div className="p-4">
               <div className="flex justify-end mb-4">
                 <button
@@ -238,12 +248,18 @@ const PatientDashboard = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {patientReportData?.length > 0 ? (
+                {loading ? (
+                  <div className="flex justify-center items-center col-span-3">
+                    <div className="loader"></div>
+                  </div>
+                ) : patientReportData?.length > 0 ? (
                   patientReportData
                     .filter((report) =>
                       activeTab === "lab"
                         ? report.reportType === "Lab Report"
-                        : report.reportType === "Diagnostic Report"
+                        : activeTab === "diagnostics"
+                        ? report.reportType === "Diagnostic Report"
+                        : !report.reportType
                     )
                     .sort((a, b) => {
                       return sortOrder === "desc"

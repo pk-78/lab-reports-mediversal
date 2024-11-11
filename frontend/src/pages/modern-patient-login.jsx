@@ -42,6 +42,7 @@ const PhoneIcon = () => (
 const LoginPage = () => {
   const [loginMethod, setLoginMethod] = useState("uhid");
   const navigate = useNavigate();
+  const [loading, setLoading]= useState(false);
 
   // useEffect(() => {sendMMS()})
 
@@ -52,6 +53,7 @@ const LoginPage = () => {
   } = useForm();
 
   const checkSubmit = async (data) => {
+    setLoading(true);
     console.log(
       `${url}/api/v1/auth/${
         loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
@@ -68,11 +70,13 @@ const LoginPage = () => {
         }`, // Ensure this endpoint handles both cases
         requestData // Use the prepared data
       );
-      console.log(
-        `${url}/api/v1/auth/${
-          loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
-        }`
-      );
+      // console.log(
+      //   `${url}/api/v1/auth/${
+      //     loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
+      //   }`
+      // );
+
+      console.log(response);
 
       if (response.status === 200) {
         console.log("OTP sent successfully");
@@ -90,6 +94,7 @@ const LoginPage = () => {
       console.log("Error sending OTP", error);
       toast.error(error.response.data.message);
     }
+    setLoading(false);
   };
 
   return (
@@ -207,7 +212,7 @@ const LoginPage = () => {
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
               >
-                Send OTP
+                 {loading?<div className="flex justify-center items-center">  <div className="dotLoader"></div></div> :"Send OTP"}
               </button>
             </div>
           </form>

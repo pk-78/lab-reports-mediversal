@@ -6,12 +6,11 @@ import patientRoute from "./routes/patient.route.js";
 import adminRoute from "./routes/admin.route.js";
 import axios from "axios";
 import path from "path";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 
 const app = express();
 const port = process.env.PORT || 4500;
@@ -21,7 +20,12 @@ connectDB();
 
 app.use(express.json());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Allow all origins for testing
+  })
+);
+
 
 app.get("/", (req, res) => {
   return res.send("hello");

@@ -4,7 +4,7 @@ const reportSchema = new mongoose.Schema({
   reportType: {
     type: String,
     enum: ["Lab Report", "Diagnostic Report"],
-    required: true,
+    // required: true,
   },
   reportName: {
     type: String,
@@ -28,6 +28,8 @@ const reportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+},{
+  timestamps:true,
 });
 
 const Report = mongoose.model("Report", reportSchema);

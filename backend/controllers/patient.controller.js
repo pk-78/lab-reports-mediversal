@@ -255,7 +255,7 @@ export const getPatientReports = async (req, res) => {
 };
 
 export const uploadMultipleReports = async (req, res) => {
-  const { uhidOrNumber, reportType } = req.body;
+  const { uhidOrNumber } = req.body;
 
   try {
     // Find the patient by UHID or number
@@ -275,7 +275,7 @@ export const uploadMultipleReports = async (req, res) => {
     const reports = await Promise.all(
       req.files.map(async (file) => {
         const report = new Report({
-          reportType,
+          
           reportLink: file.path, // store file path
           // reportName: file.originalname, // Optional: Set reportName to original file name
         });
