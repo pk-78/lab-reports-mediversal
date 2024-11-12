@@ -39,8 +39,9 @@ const PhoneIcon = () => (
 );
 
 const AdminLoginPage = () => {
-  const [loginMethod, setLoginMethod] = useState("uploader");
+  const [loginMethod, setLoginMethod] = useState("Uploader");
   const navigate = useNavigate();
+  const [loading, setLoading]= useState(false);
 
   const {
     register,
@@ -53,6 +54,8 @@ const AdminLoginPage = () => {
     console.log(data);
 
     // navigate("/adminUserManagement");
+    setLoading(true)
+    
     try {
       const response = await axios.post(
         `${url}/api/v1/admin/login`, // Ensure this endpoint handles both cases
@@ -60,8 +63,8 @@ const AdminLoginPage = () => {
       );
 
       if (response.status === 200) {
-        console.log("Login successfully");
-        toast.success("login Successfull");
+        // console.log("Login successfully");
+        
         const { adminUser, token } = response.data;
         // navigate("/adminUserManagement");
         // navigate("/otp-verify", {
@@ -73,17 +76,23 @@ const AdminLoginPage = () => {
         localStorage.setItem("role", adminUser.role);
         localStorage.setItem("userData", token);
         console.log(response);
-        adminUser.role === "Uploader"
-          ? navigate("/reportUpload")
-          : navigate("/adminUserManagement");
+        if (adminUser.role === loginMethod) {
+          toast.success("login Successfull");
+          adminUser.role === "Uploader"
+            ? navigate("/reportUpload")
+            : navigate("/adminUserManagement");
+        } else {
+          toast.error("Not Valid Role");
+        }
       } else {
         toast.error(response.response.data);
       }
     } catch (error) {
       console.log("Error login", error);
-      toast.error("Login Failed");
+      // toast.error("Login Failed");
       toast.error(error.response.data.message);
     }
+    setLoading(false)
   };
 
   return (
@@ -138,31 +147,31 @@ const AdminLoginPage = () => {
             <div className="bg-teal-100 rounded-full p-1">
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
-                  loginMethod === "uploader"
+                  loginMethod === "Uploader"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"
                 }`}
-                onClick={() => setLoginMethod("uploader")}
+                onClick={() => setLoginMethod("Uploader")}
               >
                 Uploader
               </button>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
-                  loginMethod === "admin"
+                  loginMethod === "Admin"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"
                 }`}
-                onClick={() => setLoginMethod("admin")}
+                onClick={() => setLoginMethod("Admin")}
               >
                 Admin
               </button>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
-                  loginMethod === "superadmin"
+                  loginMethod === "Super Admin"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"
                 }`}
-                onClick={() => setLoginMethod("superadmin")}
+                onClick={() => setLoginMethod("Super Admin")}
               >
                 Super Admin
               </button>
@@ -221,7 +230,7 @@ const AdminLoginPage = () => {
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
               >
-                Login
+                {loading?<div className="flex justify-center items-center">  <div className="dotLoader"></div></div> :"Login"}
               </button>
             </div>
           </form>
