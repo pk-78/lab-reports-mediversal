@@ -4,7 +4,7 @@ const reportSchema = new mongoose.Schema({
   reportType: {
     type: String,
     enum: ["Lab Report", "Diagnostic Report"],
-    required: true,
+    // required: true,
   },
   reportName: {
     type: String,
@@ -22,14 +22,16 @@ const reportSchema = new mongoose.Schema({
       "ECG",
       "EEG",
     ],
-    required: true,
+    // required: true,
   },
   reportLink: {
     type: String,
     required: true,
   },
+},{
+  timestamps:true,
 });
 
-const Report = mongoose.model("Report",reportSchema)
+const Report = mongoose.model("Report", reportSchema);
 
-export default Report
+export default Report;

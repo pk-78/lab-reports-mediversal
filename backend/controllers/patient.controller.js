@@ -3,6 +3,13 @@ import otpGenerator from "otp-generator";
 import twilio from "twilio";
 import Patient from "../models/patient.model.js";
 import Report from "../models/report.model.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -175,7 +182,6 @@ export const registerPatient = async (req, res) => {
 };
 
 //repoet protuios
-
 export const uploadReport = async (req, res) => {
   const { uhidOrNumber, reportType, reportName, reportLink } = req.body;
 
@@ -192,10 +198,15 @@ export const uploadReport = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
+    // Generate a URL for the uploaded file
+    const reportLink = `${req.protocol}://${req.get("host")}/reports/${
+      req.file.filename
+    }`;
+
     const report = new Report({
       reportType,
       reportName,
-      reportLink: req.file.path,
+      reportLink, // Save the file URL in MongoDB
     });
 
     await report.save();
@@ -205,6 +216,7 @@ export const uploadReport = async (req, res) => {
 
     res.status(201).json({ message: "Report uploaded successfully", report });
   } catch (error) {
+    console.error(error); // Log the error for debugging
     res
       .status(500)
       .json({ message: "Error uploading report", error: error.message });
@@ -242,17 +254,13 @@ export const getPatientReports = async (req, res) => {
   }
 };
 
-
-
-
-
 export const uploadMultipleReports = async (req, res) => {
-  const { uhidOrNumber, reportType } = req.body;
+  const { uhidOrNumber } = req.body;
 
   try {
     // Find the patient by UHID or number
     const patient = await Patient.findOne({
-      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }]
+      $or: [{ UHID: uhidOrNumber }, { number: uhidOrNumber }],
     });
 
     if (!patient) {
@@ -267,9 +275,9 @@ export const uploadMultipleReports = async (req, res) => {
     const reports = await Promise.all(
       req.files.map(async (file) => {
         const report = new Report({
-          reportType,
+          
           reportLink: file.path, // store file path
-          reportName: file.originalname, // Optional: Set reportName to original file name
+          // reportName: file.originalname, // Optional: Set reportName to original file name
         });
         await report.save();
         patient.reports.push(report);
@@ -281,6 +289,8 @@ export const uploadMultipleReports = async (req, res) => {
 
     res.status(201).json({ message: "Reports uploaded successfully", reports });
   } catch (error) {
-    res.status(500).json({ message: "Error uploading reports", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error uploading reports", error: error.message });
   }
 };
