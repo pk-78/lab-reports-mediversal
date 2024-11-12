@@ -1,7 +1,8 @@
+// middleware/multer.js
 import multer from 'multer';
 import path from 'path';
 
-// Configure Multer to store files
+// Configure Multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'reports'); // Folder where files will be stored
@@ -25,11 +26,18 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize multer with the storage and file filter configurations
-const upload = multer({
+// Configure upload for a single file
+const singleUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // Limit file size to 5MB
+  limits: { fileSize: 10 * 1024 * 1024 } // Limit file size to 10MB
+}).single('reportFile');
+
+// Configure upload for multiple files
+const multipleUpload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 } // Limit file size to 10MB
 }).array('reports', 50);
 
-export default upload;
+export { singleUpload, multipleUpload };

@@ -269,7 +269,7 @@ export const uploadMultipleReports = async (req, res) => {
         const report = new Report({
           reportType,
           reportLink: file.path, // store file path
-          reportName: file.originalname, // Optional: Set reportName to original file name
+        //  reportName: file.originalname, // Optional: Set reportName to original file name
         });
         await report.save();
         patient.reports.push(report);
