@@ -22,7 +22,11 @@ const reportSchema = new mongoose.Schema({
       "ECG",
       "EEG",
     ],
+
+   // required: true,
+
     // required: true,
+
   },
   reportLink: {
     type: String,
