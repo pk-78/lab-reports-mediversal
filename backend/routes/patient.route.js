@@ -30,7 +30,7 @@ patientRoute.post('/upload-report', singleUpload, uploadReport);
 patientRoute.post('/upload-multiple-reports', multipleUpload, uploadMultipleReports);
 
 patientRoute.get('/reports/:id', getPatientReports);
-=======
+
 // Use singleUpload for single file uploads
 patientRoute.post("/upload-report", singleUpload, uploadReport);
 
