@@ -146,7 +146,7 @@ const AdminLoginPage = () => {
           <div className="flex justify-center mb-6">
             <div className="bg-teal-100 rounded-full p-1">
               <button
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
                   loginMethod === "Uploader"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"
@@ -156,7 +156,7 @@ const AdminLoginPage = () => {
                 Uploader
               </button>
               <button
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
                   loginMethod === "Admin"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"
@@ -166,7 +166,7 @@ const AdminLoginPage = () => {
                 Admin
               </button>
               <button
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
                   loginMethod === "Super Admin"
                     ? "bg-teal-500 text-white"
                     : "text-teal-800"

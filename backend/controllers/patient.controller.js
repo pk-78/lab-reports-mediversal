@@ -58,29 +58,51 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   const { number, otp } = req.body;
 
-  const patient = await Patient.findOne({ number });
-  if (!patient) {
-    return res.status(404).json({ message: "Patient not found" });
-  }
+  try {
+    // Find all patients associated with the given number
+    const patients = await Patient.find({ number });
 
-  if (patient.otp !== otp || patient.otpExpire < Date.now()) {
-    return res.status(400).json({ message: "Invalid or expired OTP" });
-  }
-
-  const token = jwt.sign(
-    { id: patient._id, number: patient.number },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1h",
+    if (!patients.length) {
+      return res.status(404).json({ message: "Patient not found" });
     }
-  );
 
-  patient.otp = undefined;
-  patient.otpExpire = undefined;
-  const id = patient._id;
-  await patient.save();
+    // Verify OTP against the first patient's record (assuming OTP applies to all)
+    const primaryPatient = patients[0];
 
-  res.status(200).json({ message: "OTP verified successfully", token, id });
+    if (primaryPatient.otp !== otp || primaryPatient.otpExpire < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: primaryPatient._id, number: primaryPatient.number },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Clear OTP and expiration for all patients with the same number
+    await Patient.updateMany(
+      { number },
+      { $unset: { otp: "", otpExpire: "" } }
+    );
+
+    // Extract UHIDs along with _id for all associated patients
+    const uhidList = patients.map((p) => ({
+      _id: p._id,
+      UHID: p.UHID,
+    }));
+
+    res.status(200).json({
+      message: "OTP verified successfully",
+      token,
+      uhidList,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
 };
 
 // Send OTP by UHID
@@ -161,7 +183,7 @@ export const registerPatient = async (req, res) => {
   const { name, number, UHID } = req.body;
 
   try {
-    let patient = await Patient.findOne({ $or: [{ number }, { UHID }] });
+    let patient = await Patient.findOne({ $or: [{ UHID }] });
     if (patient) {
       return res
         .status(400)
@@ -275,9 +297,7 @@ export const uploadMultipleReports = async (req, res) => {
     const reports = await Promise.all(
       req.files.map(async (file) => {
         const report = new Report({
-          
           reportLink: file.path, // store file path
-
         });
         await report.save();
         patient.reports.push(report);
@@ -292,5 +312,31 @@ export const uploadMultipleReports = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error uploading reports", error: error.message });
+  }
+};
+
+// get uhid by number
+export const getUHIDsByNumber = async (req, res) => {
+  const { number } = req.body;
+
+  try {
+    // Find all patients with the given phone number
+    const patients = await Patient.find({ number });
+
+    if (!patients || patients.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No UHIDs found for this number" });
+    }
+
+    // Extract UHIDs from the matched patients
+    const uhidList = patients.map((patient) => patient.UHID);
+
+    res.status(200).json({ message: "UHIDs retrieved successfully", uhidList });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error retrieving UHIDs",
+      error: error.message,
+    });
   }
 };

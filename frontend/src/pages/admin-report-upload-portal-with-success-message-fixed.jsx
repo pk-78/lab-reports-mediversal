@@ -50,8 +50,11 @@ const AdminReportUploadPortal = () => {
   useEffect(() => {
     const fetchPatientData = async () => {
       setLoading(true);
+
       try {
         const response = await axios.get(`${url}/api/v1/auth/patients`);
+        // console.log("fetching");
+        // console.log(response);
         setUsers(response.data);
       } catch (err) {
         setError(err.message);
@@ -275,55 +278,68 @@ const AdminReportUploadPortal = () => {
 
   const SearchedPatient = () => {
     if (selectedPatient !== "") return null;
+
+    // Filter patients based on the search term
     const filteredPatients = users.filter(
       (patient) =>
         patient.UHID?.toLowerCase().includes(patientSearchTerm.toLowerCase()) ||
         patient.number?.toLowerCase().includes(patientSearchTerm.toLowerCase())
     );
+
+    // Limit the display to the first 10 patients
+    const displayedPatients = filteredPatients.slice(0, 10);
+
     return (
       <div className="my-4">
         {filteredPatients.length > 0 ? (
-          <table className="min-w-full bg-white border border-gray-300 rounded-md">
-            <thead>
-              <tr className="text-left">
-                <th className="py-3 px-6 border-b text-left font-semibold">
-                  Name
-                </th>
-                <th className="py-3 px-6 border-b text-left font-semibold">
-                  UHID
-                </th>
-                <th className="py-3 px-6 border-b text-left font-semibold">
-                  Number
-                </th>
-                <th className="py-3 px-6 border-b text-left font-semibold">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatients.map((patient) => (
-                <tr key={patient.UHID} className="hover:bg-gray-100">
-                  <td className="py-3 px-6 text-left border-b">
-                    {patient.name}
-                  </td>
-                  <td className="py-3 px-6 text-left border-b">
-                    {patient.UHID}
-                  </td>
-                  <td className="py-3 px-6 text-left border-b">
-                    {patient.number}
-                  </td>
-                  <td className="py-3 px-6 text-left border-b">
-                    <button
-                      onClick={() => setSelectedPatient(patient || null)}
-                      className="rounded bg-teal-600 text-white py-1 px-4"
-                    >
-                      Manage
-                    </button>
-                  </td>
+          <>
+            <table className="min-w-full bg-white border border-gray-300 rounded-md">
+              <thead>
+                <tr className="text-left">
+                  <th className="py-3 px-6 border-b text-left font-semibold">
+                    Name
+                  </th>
+                  <th className="py-3 px-6 border-b text-left font-semibold">
+                    UHID
+                  </th>
+                  <th className="py-3 px-6 border-b text-left font-semibold">
+                    Number
+                  </th>
+                  <th className="py-3 px-6 border-b text-left font-semibold">
+                    Action
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {displayedPatients.map((patient) => (
+                  <tr key={patient.UHID} className="hover:bg-gray-100">
+                    <td className="py-3 px-6 text-left border-b">
+                      {patient.name}
+                    </td>
+                    <td className="py-3 px-6 text-left border-b">
+                      {patient.UHID}
+                    </td>
+                    <td className="py-3 px-6 text-left border-b">
+                      {patient.number}
+                    </td>
+                    <td className="py-3 px-6 text-left border-b">
+                      <button
+                        onClick={() => setSelectedPatient(patient || null)}
+                        className="rounded bg-teal-600 text-white py-1 px-4"
+                      >
+                        Manage
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filteredPatients.length > 10 && (
+              <p className="text-gray-500 mt-2">
+                Showing 10 of {filteredPatients.length} matching patients.
+              </p>
+            )}
+          </>
         ) : (
           <p className="text-gray-500">No matching patients found</p>
         )}
@@ -373,6 +389,10 @@ const AdminReportUploadPortal = () => {
           </h1>
         </div>
 
+        {loading && (
+          <div className="pl-6 pd-2">Fetching Patients Details...</div>
+        )}
+
         <form onSubmit={handlePatientSearch}>
           <div className="flex mb-4">
             <input
@@ -397,21 +417,23 @@ const AdminReportUploadPortal = () => {
 
         {patientSearchTerm && <SearchedPatient />}
 
-        {selectedPatient && <div className="flex justify-end">
-          <input
-            type="file"
-            onChange={handleMultipleFileChange}
-            disabled={loading}
-            multiple
-            className=""
-          />
-          <button
-            onClick={handleMultipleUpload}
-            className=" px-6 py-3 text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
-          >
-            {loading ? "Uploading..." : "Bulk Upload"}
-          </button>
-        </div>}
+        {selectedPatient && (
+          <div className="flex justify-end">
+            <input
+              type="file"
+              onChange={handleMultipleFileChange}
+              disabled={loading}
+              multiple
+              className=""
+            />
+            <button
+              onClick={handleMultipleUpload}
+              className=" px-6 py-3 text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
+            >
+              {loading ? "Uploading..." : "Bulk Upload"}
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ReportSection
@@ -484,4 +506,3 @@ const AdminReportUploadPortal = () => {
 };
 
 export default AdminReportUploadPortal;
-

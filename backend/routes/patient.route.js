@@ -4,6 +4,7 @@ import {
   getAllPatients,
   getPatientById,
   getPatientReports,
+  getUHIDsByNumber,
   registerPatient,
   sendOtp,
   sendOtpByUHID,
@@ -30,7 +31,7 @@ patientRoute.post('/upload-report', singleUpload, uploadReport);
 patientRoute.post('/upload-multiple-reports', multipleUpload, uploadMultipleReports);
 
 patientRoute.get('/reports/:id', getPatientReports);
-=======
+
 // Use singleUpload for single file uploads
 patientRoute.post("/upload-report", singleUpload, uploadReport);
 
@@ -42,6 +43,7 @@ patientRoute.post(
 );
 
 patientRoute.get("/reports/:id", getPatientReports);
+patientRoute.post('/getUHIDsByNumber', getUHIDsByNumber);
 
 
 export default patientRoute;

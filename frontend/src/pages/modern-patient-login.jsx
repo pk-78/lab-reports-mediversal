@@ -70,11 +70,7 @@ const LoginPage = () => {
         }`, // Ensure this endpoint handles both cases
         requestData // Use the prepared data
       );
-      // console.log(
-      //   `${url}/api/v1/auth/${
-      //     loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
-      //   }`
-      // );
+     
 
       console.log(response);
 
@@ -83,7 +79,7 @@ const LoginPage = () => {
         toast.success("OTP sent successfully");
         navigate("/otp-verify", {
           state: {
-            otpData: { number: data.number, responseData: response.data },
+            otpData: { number: data.number, responseData: response.data, method:loginMethod },
           },
         });
         console.log(response);

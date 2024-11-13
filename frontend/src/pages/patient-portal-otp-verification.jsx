@@ -13,8 +13,9 @@ const OTPVerificationPage = () => {
 
   useEffect(() => {
     // console.log("number:", otpData?.number);
-    console.log("response Data:", otpData?.responseData.otp);
-    console.log("response Data:", otpData?.responseData?.number);
+    // console.log("response Data:", otpData?.responseData.otp);
+    // console.log("response Data:", otpData?.responseData?.number);
+    // console.log("method", otpData?.method)
   }, [otpData]);
 
   useEffect(() => {
@@ -47,10 +48,10 @@ const OTPVerificationPage = () => {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent the default form submission
-    const otpString = otp.join(""); // Combine the OTP digits into a string
-    console.log("Submitted OTP:", otpString);
-    console.log("Associated Number:", otpData?.number);
+    event.preventDefault(); 
+    const otpString = otp.join(""); 
+    // console.log("Submitted OTP:", otpString);
+    // console.log("Associated Number:", otpData?.number);
 
     try {
       const response = await axios.post(`${url}/api/v1/auth/verify-otp`, {
@@ -59,12 +60,24 @@ const OTPVerificationPage = () => {
       });
 
       console.log("Verification Response:", response);
-      // Handle success (e.g., navigate to dashboard)
+      
       if (response.status === 200) {
         toast.success("Verified");
-        navigate(`/dashboard/${response.data.id}`); // Redirect on success
+        // console.log(response);
+        // console.log(response.data.uhidList.length);
+
+        if (response.data.uhidList.length === 1|| otpData?.method==="uhid" ) {
+          navigate(`/dashboard/${response.data.uhidList[0]?._id}`); // Redirect for single UHID
+        } else if (response.data.uhidList.length > 1) {
+          navigate("/post-uhid-selection", {
+            state: {
+              uhidList: response.data.uhidList,
+              number: otpData?.number, // Pass the uhidList directly
+            },
+          });
+        }
       } else {
-        console.error("Error:", response.data.message); // Log error message
+        console.error("Error:", response.data.message); 
       }
     } catch (error) {
       console.error("Error during OTP verification:", error);
@@ -76,6 +89,7 @@ const OTPVerificationPage = () => {
       } else {
         // Network error or other error
         console.error("Network Error:", error.message);
+        toast.error("Network Error");
       }
     }
   };

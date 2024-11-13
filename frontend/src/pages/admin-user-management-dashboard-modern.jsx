@@ -39,7 +39,7 @@ const AdminUserManagementDashboard = () => {
         );
 
         // Log the response or user data to the console
-        console.log(response.data);
+        // console.log(response.data);
 
         // Add the new user to the local state if the POST request succeeds
         setUsers([...users, newUserWithId]);
@@ -67,7 +67,7 @@ const AdminUserManagementDashboard = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${url}/api/v1/admin/admin-users`);
-        console.log(response);
+        // console.log(response);
         setUsers(response.data);
       } catch (err) {
         setError(err.message);
