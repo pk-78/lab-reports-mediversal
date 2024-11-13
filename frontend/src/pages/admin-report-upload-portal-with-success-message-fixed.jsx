@@ -10,8 +10,8 @@ const AdminReportUploadPortal = () => {
   const [labSearchTerm, setLabSearchTerm] = useState("");
   const [diagnosticSearchTerm, setDiagnosticSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState("");
-  const [selectedReport, setSelectedReport] = useState(""); 
-  const [selectedReportType, setSelectedReportType] = useState(""); 
+  const [selectedReport, setSelectedReport] = useState("");
+  const [selectedReportType, setSelectedReportType] = useState("");
   const [file, setFile] = useState(null); // Store the file to be uploaded
   const [multipleFiles, setMultipleFiles] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -39,14 +39,13 @@ const AdminReportUploadPortal = () => {
     "EEG",
   ];
 
-  
   useEffect(() => {
     if (labReports.includes(selectedReport)) {
       setSelectedReportType("Lab Report");
     } else if (diagnosticReports.includes(selectedReport)) {
       setSelectedReportType("Diagnostic Report");
     } else {
-      setSelectedReportType(""); 
+      setSelectedReportType("");
     }
   }, [selectedReport]);
 
@@ -56,7 +55,7 @@ const AdminReportUploadPortal = () => {
 
       try {
         const response = await axios.get(`${url}/api/v1/auth/patients`);
-       
+
         setUsers(response.data);
       } catch (err) {
         setError(err.message);
@@ -77,23 +76,18 @@ const AdminReportUploadPortal = () => {
         patient.UHID?.toLowerCase() === searchTerm ||
         patient.number?.toLowerCase() === "+91" + searchTerm
     );
-
-   
   };
 
-  
   const handleReportToggle = (reportName) => {
     setSelectedReport((prev) => (prev === reportName ? "" : reportName));
     setFile(null);
   };
 
-  
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile); // Set the selected file
   };
 
-  
   const handleUpload = async (e) => {
     e.preventDefault();
 
@@ -110,13 +104,11 @@ const AdminReportUploadPortal = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("reportFile", file); 
-      formData.append("uhidOrNumber", selectedPatient.number); 
+      formData.append("reportFile", file);
+      formData.append("uhidOrNumber", selectedPatient.number);
       formData.append("reportType", selectedReportType);
       formData.append("reportName", selectedReport);
-      
 
-      
       const response = await axios.post(
         `${url}/api/v1/auth/upload-report`,
         formData,
@@ -157,9 +149,9 @@ const AdminReportUploadPortal = () => {
     try {
       const formData = new FormData();
       multipleFiles.forEach((file) => {
-        formData.append("reports", file); 
+        formData.append("reports", file);
       });
-      formData.append("uhidOrNumber", selectedPatient.number); 
+      formData.append("uhidOrNumber", selectedPatient.number);
 
       const response = await axios.post(
         `${url}/api/v1/auth/upload-multiple-reports`,
@@ -285,7 +277,6 @@ const AdminReportUploadPortal = () => {
   const SearchedPatient = () => {
     if (selectedPatient !== "") return null;
 
-   
     const filteredPatients = users.filter(
       (patient) =>
         patient.UHID?.toLowerCase().includes(patientSearchTerm.toLowerCase()) ||
@@ -409,12 +400,12 @@ const AdminReportUploadPortal = () => {
               placeholder="Enter UHID or Mobile Number"
               value={patientSearchTerm}
               onChange={(e) => setPatientSearchTerm(e.target.value)}
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="flex-grow px-2 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             />
             {selectedPatient !== "" && (
               <button
                 onClick={() => setSelectedPatient("")}
-                className="ml-4 px-6 py-2 bg-teal-600 text-white text-sm lg:text-lg rounded-md hover:bg-teal-700 transition-colors duration-150"
+                className="ml-1 px-3 py-2 bg-teal-600 text-white text-sm lg:text-lg rounded-md hover:bg-teal-700 transition-colors duration-150"
               >
                 Search Other Patient
               </button>
@@ -437,7 +428,7 @@ const AdminReportUploadPortal = () => {
             />
             <button
               onClick={handleMultipleUpload}
-              className=" px-2 py-1 text-sm text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
+              className=" px-1 py-1 text-sm text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
             >
               {loading ? "Uploading..." : "Bulk Upload"}
             </button>
