@@ -32,16 +32,13 @@ const AdminUserManagementDashboard = () => {
     } else {
       try {
         const newUserWithId = { ...newUser };
-        // POST the new user data to the backend API
+       
         const response = await axios.post(
           `${url}/api/v1/admin/admin-users`,
           newUserWithId
         );
 
-        // Log the response or user data to the console
-        // console.log(response.data);
-
-        // Add the new user to the local state if the POST request succeeds
+       
         setUsers([...users, newUserWithId]);
         toast.success("User created successfully!");
         setSuccessMessage("User created successfully!");

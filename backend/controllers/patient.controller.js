@@ -54,7 +54,7 @@ export const sendOtp = async (req, res) => {
   }
 };
 
-// Verify OTP
+// Verify OTP by number
 export const verifyOtp = async (req, res) => {
   const { number, otp } = req.body;
 
@@ -103,6 +103,36 @@ export const verifyOtp = async (req, res) => {
       .status(500)
       .json({ message: "Internal server error", error: error.message });
   }
+};
+
+// verify otp by UHID
+export const verifyOtpByUhid = async (req, res) => {
+  const { UHID, otp } = req.body;
+
+
+  const patient = await Patient.findOne({ UHID });
+  if (!patient) {
+    return res.status(404).json({ message: "Patient not found" });
+  }
+
+  if (patient.otp !== otp || patient.otpExpire < Date.now()) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  const token = jwt.sign(
+    { id: patient._id, number: patient.number },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h",
+    }
+  );
+
+  patient.otp = undefined;
+  patient.otpExpire = undefined;
+  const id = patient._id;
+  await patient.save();
+
+  res.status(200).json({ message: "OTP verified successfully", token, id });
 };
 
 // Send OTP by UHID
@@ -293,11 +323,13 @@ export const uploadMultipleReports = async (req, res) => {
       return res.status(400).json({ message: "No files uploaded" });
     }
 
-    // Loop through each uploaded file and save it as a report without `reportName`
+    // Loop through each uploaded file and save it as a report link
     const reports = await Promise.all(
       req.files.map(async (file) => {
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
+        
         const report = new Report({
-          reportLink: file.path, // store file path
+          reportLink, // store file link
         });
         await report.save();
         patient.reports.push(report);

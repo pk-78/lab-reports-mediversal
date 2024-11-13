@@ -2,18 +2,21 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import url from "../auth/url";
 import { useNavigate } from "react-router-dom";
+import { GoPencil } from "react-icons/go";
+import toast from "react-hot-toast";
 
 const AdminReportUploadPortal = () => {
   const [patientSearchTerm, setPatientSearchTerm] = useState("");
   const [labSearchTerm, setLabSearchTerm] = useState("");
   const [diagnosticSearchTerm, setDiagnosticSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState("");
-  const [selectedReport, setSelectedReport] = useState(""); // Store only one report type
-  const [selectedReportType, setSelectedReportType] = useState(""); // Use useState to declare this
+  const [selectedReport, setSelectedReport] = useState(""); 
+  const [selectedReportType, setSelectedReportType] = useState(""); 
   const [file, setFile] = useState(null); // Store the file to be uploaded
   const [multipleFiles, setMultipleFiles] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(false);
   const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
@@ -36,30 +39,29 @@ const AdminReportUploadPortal = () => {
     "EEG",
   ];
 
-  // Set selected report type based on selected report
+  
   useEffect(() => {
     if (labReports.includes(selectedReport)) {
       setSelectedReportType("Lab Report");
     } else if (diagnosticReports.includes(selectedReport)) {
       setSelectedReportType("Diagnostic Report");
     } else {
-      setSelectedReportType(""); // Handle case where the report is not found
+      setSelectedReportType(""); 
     }
   }, [selectedReport]);
 
   useEffect(() => {
     const fetchPatientData = async () => {
-      setLoading(true);
+      setFetchLoading(true);
 
       try {
         const response = await axios.get(`${url}/api/v1/auth/patients`);
-        // console.log("fetching");
-        // console.log(response);
+       
         setUsers(response.data);
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
+        setFetchLoading(false);
       }
     };
 
@@ -76,22 +78,22 @@ const AdminReportUploadPortal = () => {
         patient.number?.toLowerCase() === "+91" + searchTerm
     );
 
-    // setSelectedPatient(foundPatient || null);
+   
   };
 
-  // Toggle report selection
+  
   const handleReportToggle = (reportName) => {
     setSelectedReport((prev) => (prev === reportName ? "" : reportName));
-    setFile(null); // Reset file when toggling report
+    setFile(null);
   };
 
-  // Handle file selection
+  
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile); // Set the selected file
   };
 
-  // Handle report upload
+  
   const handleUpload = async (e) => {
     e.preventDefault();
 
@@ -108,13 +110,13 @@ const AdminReportUploadPortal = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("reportFile", file); // Multer expects this field to be 'file'
-      formData.append("uhidOrNumber", selectedPatient.number); // Append patient number/UHID
+      formData.append("reportFile", file); 
+      formData.append("uhidOrNumber", selectedPatient.number); 
       formData.append("reportType", selectedReportType);
       formData.append("reportName", selectedReport);
-      console.log(formData);
+      
 
-      // Make an axios call to upload the file and metadata
+      
       const response = await axios.post(
         `${url}/api/v1/auth/upload-report`,
         formData,
@@ -125,8 +127,10 @@ const AdminReportUploadPortal = () => {
         }
       );
 
-      console.log(`Upload response for ${selectedReport}:`, response.data);
+      // console.log(`Upload response for ${selectedReport}:`, response.data);
+      // toast.success("File uploaded ");
       setShowSuccess(true);
+
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setError(err.message);
@@ -153,9 +157,9 @@ const AdminReportUploadPortal = () => {
     try {
       const formData = new FormData();
       multipleFiles.forEach((file) => {
-        formData.append("reports", file); // Append each file individually
+        formData.append("reports", file); 
       });
-      formData.append("uhidOrNumber", selectedPatient.number); // Append patient number/UHID
+      formData.append("uhidOrNumber", selectedPatient.number); 
 
       const response = await axios.post(
         `${url}/api/v1/auth/upload-multiple-reports`,
@@ -167,8 +171,10 @@ const AdminReportUploadPortal = () => {
         }
       );
 
-      console.log(`Upload response for reports:`, response.data);
+      // console.log(`Upload response for reports:`, response.data);
+      // toast.success("File uploaded ");
       setShowSuccess(true);
+
       setTimeout(() => setShowSuccess(false), 3000);
       setMultipleFiles([]);
     } catch (err) {
@@ -230,7 +236,7 @@ const AdminReportUploadPortal = () => {
                 <div>
                   <input
                     type="file"
-                    onChange={handleFileChange} // Handle file selection
+                    onChange={handleFileChange}
                     className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
                     aria-label={`Upload file for ${report}`}
                   />
@@ -279,7 +285,7 @@ const AdminReportUploadPortal = () => {
   const SearchedPatient = () => {
     if (selectedPatient !== "") return null;
 
-    // Filter patients based on the search term
+   
     const filteredPatients = users.filter(
       (patient) =>
         patient.UHID?.toLowerCase().includes(patientSearchTerm.toLowerCase()) ||
@@ -296,16 +302,16 @@ const AdminReportUploadPortal = () => {
             <table className="min-w-full bg-white border border-gray-300 rounded-md">
               <thead>
                 <tr className="text-left">
-                  <th className="py-3 px-6 border-b text-left font-semibold">
+                  <th className="py-3 px-6 text-xs lg:text-base  border-b text-left font-semibold">
                     Name
                   </th>
-                  <th className="py-3 px-6 border-b text-left font-semibold">
+                  <th className="py-3 px-6 text-xs lg:text-base border-b text-left font-semibold">
                     UHID
                   </th>
-                  <th className="py-3 px-6 border-b text-left font-semibold">
+                  <th className="py-3 px-6 text-xs lg:text-base border-b text-left font-semibold">
                     Number
                   </th>
-                  <th className="py-3 px-6 border-b text-left font-semibold">
+                  <th className="py-3 px-6 text-xs lg:text-base border-b text-left font-semibold">
                     Action
                   </th>
                 </tr>
@@ -313,21 +319,24 @@ const AdminReportUploadPortal = () => {
               <tbody>
                 {displayedPatients.map((patient) => (
                   <tr key={patient.UHID} className="hover:bg-gray-100">
-                    <td className="py-3 px-6 text-left border-b">
+                    <td className="py-3 px-3 text-left lg:text-base text-xs border-b">
                       {patient.name}
                     </td>
-                    <td className="py-3 px-6 text-left border-b">
+                    <td className="py-3 px-3 text-left lg:text-base   text-xs border-b">
                       {patient.UHID}
                     </td>
-                    <td className="py-3 px-6 text-left border-b">
+                    <td className="py-3 px-3 text-left lg:text-base text-xs border-b">
                       {patient.number}
                     </td>
-                    <td className="py-3 px-6 text-left border-b">
+                    <td className="py-3 px-3 text-left  lg:text-base text-xs border-b">
                       <button
                         onClick={() => setSelectedPatient(patient || null)}
-                        className="rounded bg-teal-600 text-white py-1 px-4"
+                        className="rounded bg-teal-600 text-white py-1 px-4 flex items-center justify-center"
                       >
-                        Manage
+                        <span className="lg:hidden">
+                          <GoPencil />
+                        </span>
+                        <span className="hidden lg:inline">Manage</span>
                       </button>
                     </td>
                   </tr>
@@ -389,7 +398,7 @@ const AdminReportUploadPortal = () => {
           </h1>
         </div>
 
-        {loading && (
+        {fetchLoading && (
           <div className="pl-6 pd-2">Fetching Patients Details...</div>
         )}
 
@@ -405,7 +414,7 @@ const AdminReportUploadPortal = () => {
             {selectedPatient !== "" && (
               <button
                 onClick={() => setSelectedPatient("")}
-                className="ml-4 px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-150"
+                className="ml-4 px-6 py-2 bg-teal-600 text-white text-sm lg:text-lg rounded-md hover:bg-teal-700 transition-colors duration-150"
               >
                 Search Other Patient
               </button>
@@ -418,7 +427,7 @@ const AdminReportUploadPortal = () => {
         {patientSearchTerm && <SearchedPatient />}
 
         {selectedPatient && (
-          <div className="flex justify-end">
+          <div className="flex justify-center">
             <input
               type="file"
               onChange={handleMultipleFileChange}
@@ -428,7 +437,7 @@ const AdminReportUploadPortal = () => {
             />
             <button
               onClick={handleMultipleUpload}
-              className=" px-6 py-3 text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
+              className=" px-2 py-1 text-sm text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
             >
               {loading ? "Uploading..." : "Bulk Upload"}
             </button>

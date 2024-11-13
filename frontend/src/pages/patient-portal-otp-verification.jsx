@@ -15,7 +15,11 @@ const OTPVerificationPage = () => {
     // console.log("number:", otpData?.number);
     // console.log("response Data:", otpData?.responseData.otp);
     // console.log("response Data:", otpData?.responseData?.number);
-    // console.log("method", otpData?.method)
+    // console.log("method", otpData?.method);
+    // console.log("uhid", otpData?.uhid);
+    // console.log(
+    //   `${otpData?.method === "uhid" ? "verify-otp-uhid" : "verify-otp"}`
+    // );
   }, [otpData]);
 
   useEffect(() => {
@@ -48,46 +52,66 @@ const OTPVerificationPage = () => {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); 
-    const otpString = otp.join(""); 
+    event.preventDefault();
+    const otpString = otp.join("");
     // console.log("Submitted OTP:", otpString);
     // console.log("Associated Number:", otpData?.number);
 
     try {
-      const response = await axios.post(`${url}/api/v1/auth/verify-otp`, {
-        otp: otpString,
-        number: otpData?.responseData?.number,
-      });
+      const response = await axios.post(
+        `${url}/api/v1/auth/${
+          otpData?.method === "uhid" ? "verify-otp-uhid" : "verify-otp"
+        }`,
+        {
+          otp: otpString,
+          number: otpData?.responseData?.number,
+          UHID: otpData?.uhid,
+        }
+      );
 
-      console.log("Verification Response:", response);
-      
+      // console.log("Verification Response:", response);
+
       if (response.status === 200) {
         toast.success("Verified");
         // console.log(response);
-        // console.log(response.data.uhidList.length);
+        if (otpData?.method === "uhid") {
+          // console.log("ye le", response.data);
+          navigate(`/dashboard/${response.data.id}`);
+        } else {
+          if (
+            response.data.uhidList.length === 1 ||
+            otpData?.method === "uhid"
+          ) {
+            navigate(`/dashboard/${response.data.uhidList[0]?._id}`); 
+          } else if (otpData?.method === "uhid") {
+            const matchingItem = uhidList.find(
+              (item) => item.UHID === otpData?.uhid
+            );
 
-        if (response.data.uhidList.length === 1|| otpData?.method==="uhid" ) {
-          navigate(`/dashboard/${response.data.uhidList[0]?._id}`); // Redirect for single UHID
-        } else if (response.data.uhidList.length > 1) {
-          navigate("/post-uhid-selection", {
-            state: {
-              uhidList: response.data.uhidList,
-              number: otpData?.number, // Pass the uhidList directly
-            },
-          });
+            // const matchingId = matchingItem?._id;
+
+            navigate(`/dashboard/${matchingItem?._id}`); 
+          } else if (response.data.uhidList.length > 1) {
+            navigate("/post-uhid-selection", {
+              state: {
+                uhidList: response.data.uhidList,
+                number: otpData?.number, 
+              },
+            });
+          }
         }
       } else {
-        console.error("Error:", response.data.message); 
+        console.error("Error:", response.data.message);
       }
     } catch (error) {
       console.error("Error during OTP verification:", error);
-      // Handle error (e.g., show error message to user)
+      
       if (error.response) {
-        // Server responded with a status other than 200 range
+      
         console.error("Server Error:", error.response.data.message);
         toast.error(error.response.data.message);
       } else {
-        // Network error or other error
+       
         console.error("Network Error:", error.message);
         toast.error("Network Error");
       }

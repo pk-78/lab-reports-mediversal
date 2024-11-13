@@ -8,7 +8,7 @@ const PostLoginUHIDSelection = (
   const [selectedUHID, setSelectedUHID] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
-  const { uhidList, number } = location.state || {}; // Destructure uhidList and number
+  const { uhidList, number } = location.state || {}; 
 
   const navigate= useNavigate();
   useEffect(() => {

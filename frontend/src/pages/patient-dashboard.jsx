@@ -4,11 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import url from "../auth/url";
 import reportLink from "path";
 
-// const samplePatient = {
-//   name: "Aarav Patel",
-//   uhi: "11-1111-1111-1111",
-//   mobileNumber: "+91 98765 43210"
-// };
+
 
 const sampleLabReports = [
   {
@@ -55,7 +51,7 @@ const PatientDashboard = ({
         setPatientData(response.data);
       } catch (err) {
         // setError(err.message);
-        console.log(err.message);
+        // console.log(err.message);
       } finally {
         setLoading(false);
       }
@@ -70,7 +66,7 @@ const PatientDashboard = ({
         // console.log(response.data.reports);
         setPatientReportData(response.data.reports);
       } catch (err) {
-        console.log(err);
+        // console.log(err);
       } finally {
         setLoading(false);
       }

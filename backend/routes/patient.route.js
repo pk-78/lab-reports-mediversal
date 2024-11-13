@@ -11,6 +11,7 @@ import {
   uploadMultipleReports,
   uploadReport,
   verifyOtp,
+  verifyOtpByUhid,
 } from "../controllers/patient.controller.js";
 import { singleUpload, multipleUpload } from "../middleware/multer.js";
 
@@ -18,6 +19,7 @@ const patientRoute = express.Router();
 
 patientRoute.post("/sendOtp", sendOtp);
 patientRoute.post("/verify-otp", verifyOtp);
+patientRoute.post("/verify-otp-uhid", verifyOtpByUhid);
 patientRoute.post("/send-otp-uhid", sendOtpByUHID);
 patientRoute.get("/patients", getAllPatients);
 patientRoute.get("/patients/:id", getPatientById);

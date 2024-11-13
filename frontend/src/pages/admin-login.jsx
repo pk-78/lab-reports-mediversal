@@ -51,15 +51,15 @@ const AdminLoginPage = () => {
   const [role, setRole] = useState("");
 
   const checkSubmit = async (data) => {
-    console.log(data);
+    // console.log(data);
 
     // navigate("/adminUserManagement");
     setLoading(true)
     
     try {
       const response = await axios.post(
-        `${url}/api/v1/admin/login`, // Ensure this endpoint handles both cases
-        data // Use the prepared data
+        `${url}/api/v1/admin/login`, 
+        data 
       );
 
       if (response.status === 200) {
@@ -75,7 +75,7 @@ const AdminLoginPage = () => {
 
         localStorage.setItem("role", adminUser.role);
         localStorage.setItem("userData", token);
-        console.log(response);
+        // console.log(response);
         if (adminUser.role === loginMethod) {
           toast.success("login Successfull");
           adminUser.role === "Uploader"
@@ -88,7 +88,7 @@ const AdminLoginPage = () => {
         toast.error(response.response.data);
       }
     } catch (error) {
-      console.log("Error login", error);
+      // console.log("Error login", error);
       // toast.error("Login Failed");
       toast.error(error.response.data.message);
     }
