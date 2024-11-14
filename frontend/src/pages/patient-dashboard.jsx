@@ -4,11 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import url from "../auth/url";
 import reportLink from "path";
 
-// const samplePatient = {
-//   name: "Aarav Patel",
-//   uhi: "11-1111-1111-1111",
-//   mobileNumber: "+91 98765 43210"
-// };
+
 
 const sampleLabReports = [
   {
@@ -55,7 +51,7 @@ const PatientDashboard = ({
         setPatientData(response.data);
       } catch (err) {
         // setError(err.message);
-        console.log(err.message);
+        // console.log(err.message);
       } finally {
         setLoading(false);
       }
@@ -70,7 +66,7 @@ const PatientDashboard = ({
         // console.log(response.data.reports);
         setPatientReportData(response.data.reports);
       } catch (err) {
-        console.log(err);
+        // console.log(err);
       } finally {
         setLoading(false);
       }
@@ -130,11 +126,12 @@ const PatientDashboard = ({
             View
           </button>
           <button
-            onClick={() => downloadReport(reportLink, title)}
+            onClick={() => downloadReport(reportLink)}
             className="bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
           >
             Download
           </button>
+          
         </div>
         {viewData && (
           <div className="mt-4">
@@ -149,12 +146,31 @@ const PatientDashboard = ({
     );
   };
 
-  const downloadReport = (fileUrl, filename) => {
-    const link = document.createElement("a");
-    link.href = fileUrl; // The link to the file
-    link.download = filename; // The filename to save the file as
-    link.click(); // Trigger the download
-  };
+  // const downloadReport = (fileUrl, filename) => {
+  //   const link = document.createElement("a");
+  //   link.href = fileUrl; // The link to the file
+  //   link.download = filename; // The filename to save the file as
+  //   link.click(); // Trigger the download
+  // };
+
+  const downloadReport = async (imageUrl,) => {
+    try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = imageUrl.split('/').pop();
+        link.click();
+
+        URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+        console.error('Error downloading the image:', error);
+    }
+};
+
+
 
   const sortReports = (reports) => {
     return [...reports].sort((a, b) => {
