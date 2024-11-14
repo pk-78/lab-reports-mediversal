@@ -4,12 +4,14 @@ import {
   getAllPatients,
   getPatientById,
   getPatientReports,
+  getUHIDsByNumber,
   registerPatient,
   sendOtp,
   sendOtpByUHID,
   uploadMultipleReports,
   uploadReport,
   verifyOtp,
+  verifyOtpByUhid,
 } from "../controllers/patient.controller.js";
 import { singleUpload, multipleUpload } from "../middleware/multer.js";
 
@@ -17,6 +19,7 @@ const patientRoute = express.Router();
 
 patientRoute.post("/sendOtp", sendOtp);
 patientRoute.post("/verify-otp", verifyOtp);
+patientRoute.post("/verify-otp-uhid", verifyOtpByUhid);
 patientRoute.post("/send-otp-uhid", sendOtpByUHID);
 patientRoute.get("/patients", getAllPatients);
 patientRoute.get("/patients/:id", getPatientById);
@@ -30,7 +33,7 @@ patientRoute.post('/upload-report', singleUpload, uploadReport);
 patientRoute.post('/upload-multiple-reports', multipleUpload, uploadMultipleReports);
 
 patientRoute.get('/reports/:id', getPatientReports);
-=======
+
 // Use singleUpload for single file uploads
 patientRoute.post("/upload-report", singleUpload, uploadReport);
 
@@ -42,6 +45,7 @@ patientRoute.post(
 );
 
 patientRoute.get("/reports/:id", getPatientReports);
+patientRoute.post('/getUHIDsByNumber', getUHIDsByNumber);
 
 
 export default patientRoute;
