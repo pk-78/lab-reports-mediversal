@@ -13,7 +13,7 @@ import {
   verifyOtp,
   verifyOtpByUhid,
 } from "../controllers/patient.controller.js";
-import { singleUpload, multipleUpload } from "../middleware/multer.js";
+import { multipleUpload, singleUpload } from "../middleware/multer.js";
 
 const patientRoute = express.Router();
 
