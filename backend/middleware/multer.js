@@ -41,14 +41,14 @@ const fileFilter = (req, file, cb) => {
 const singleUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 10MB
 }).array('reportFile',5);
 
 // Configure upload for multiple files
 const multipleUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 10MB
 }).array('reports', 50);
 
 export { singleUpload, multipleUpload };
