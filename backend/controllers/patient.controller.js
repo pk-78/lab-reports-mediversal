@@ -26,18 +26,17 @@ export const sendOtp = async (req, res) => {
 
     // Validate phone number format
     if (!isValidPhoneNumber(number)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Invalid phone number format. Please use international format (e.g., +1234567890).",
-        });
+      return res.status(400).json({
+        message:
+          "Invalid phone number format. Please use international format (e.g., +1234567890).",
+      });
     }
 
     // Check if patient already exists or create a new entry
     let patient = await Patient.findOne({ number });
     if (!patient) {
-      patient = new Patient({ number });
+      console.log("Patient does not exist")
+      return res.status(400).json({ message: "Patient does not exist" });
     }
 
     // Generate OTP
@@ -72,12 +71,10 @@ export const sendOtp = async (req, res) => {
     }
   } catch (error) {
     console.error("Server error:", error); // Log server error details
-    res
-      .status(500)
-      .json({
-        error: "An error occurred on the server",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "An error occurred on the server",
+      details: error.message,
+    });
   }
 };
 
@@ -108,7 +105,6 @@ export const verifyOtp = async (req, res) => {
     );
     console.log("Generated Token:", token); // Debugging: Check token generation
 
-
     // Clear OTP and expiration for all patients with the same number
     await Patient.updateMany(
       { number },
@@ -137,7 +133,6 @@ export const verifyOtp = async (req, res) => {
 // verify otp by UHID
 export const verifyOtpByUhid = async (req, res) => {
   const { UHID, otp } = req.body;
-
 
   const patient = await Patient.findOne({ UHID });
   if (!patient) {
@@ -355,8 +350,10 @@ export const uploadMultipleReports = async (req, res) => {
     // Loop through each uploaded file and save it as a report link
     const reports = await Promise.all(
       req.files.map(async (file) => {
-        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
-        
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
+          file.filename
+        }`;
+
         const report = new Report({
           reportLink, // store file link
         });
