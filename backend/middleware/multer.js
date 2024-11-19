@@ -1,16 +1,27 @@
-// middleware/multer.js
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 
-// Configure Multer storage
+// Ensure 'reports' folder exists
+const ensureFolder = (folder) => {
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder, { recursive: true });
+  }
+};
+const uploadFolder = 'reports';
+ensureFolder(uploadFolder);
+
+// Configure Multer storage with updated naming convention
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'reports'); // Folder where files will be stored
+    cb(null, uploadFolder); // Folder where files will be stored
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+    const timestamp = Date.now();
+    const username = req.body.username || 'anonymous'; // Use 'anonymous' if no username
+    const originalName = path.basename(file.originalname, path.extname(file.originalname)).replace(/\s+/g, '_');
+    cb(null, `${username}_${timestamp}_${originalName}${path.extname(file.originalname)}`);
+  },
 });
 
 // Filter to allow specific file types (e.g., PDFs, images)
@@ -30,14 +41,14 @@ const fileFilter = (req, file, cb) => {
 const singleUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // Limit file size to 10MB
-}).single('reportFile');
+  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+}).array('reportFile',5);
 
 // Configure upload for multiple files
 const multipleUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // Limit file size to 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
 }).array('reports', 50);
 
 export { singleUpload, multipleUpload };

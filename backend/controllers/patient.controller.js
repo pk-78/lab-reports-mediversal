@@ -106,6 +106,8 @@ export const verifyOtp = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+    console.log("Generated Token:", token); // Debugging: Check token generation
+
 
     // Clear OTP and expiration for all patients with the same number
     await Patient.updateMany(
