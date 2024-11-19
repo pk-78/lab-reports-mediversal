@@ -3,54 +3,81 @@ import otpGenerator from "otp-generator";
 import twilio from "twilio";
 import Patient from "../models/patient.model.js";
 import Report from "../models/report.model.js";
-import fs from "fs";
-import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-const client = twilio(accountSid, authToken);
-
+const isValidPhoneNumber = (phoneNumber) => {
+  const phoneRegex = /^\+[1-9]\d{1,14}$/; // E.164 format regex
+  return phoneRegex.test(phoneNumber);
+};
 // Send OTP
 export const sendOtp = async (req, res) => {
-  const { number } = req.body;
-
-  let patient = await Patient.findOne({ number });
-  if (!patient) {
-    patient = new Patient({ number });
-  }
-
-  const otp = otpGenerator.generate(4, {
-    upperCaseAlphabets: false,
-    specialChars: false,
-    lowerCaseAlphabets: false,
-  });
-
-  const otpExpire = Date.now() + 5 * 60 * 1000;
-
-  patient.otp = otp;
-  patient.otpExpire = otpExpire;
-  await patient.save();
-
-  // Use Twilio to send the OTP via SMS
   try {
-    await client.messages.create({
-      body: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
-      from: twilioPhoneNumber,
-      to: number,
+    const { number } = req.body;
+
+    // Validate phone number format
+    if (!isValidPhoneNumber(number)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Invalid phone number format. Please use international format (e.g., +1234567890).",
+        });
+    }
+
+    // Check if patient already exists or create a new entry
+    let patient = await Patient.findOne({ number });
+    if (!patient) {
+      patient = new Patient({ number });
+    }
+
+    // Generate OTP
+    const otp = otpGenerator.generate(4, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
     });
 
-    res.status(200).json({ message: "OTP sent successfully", number });
+    // Set OTP expiration time (5 minutes from now)
+    const otpExpire = Date.now() + 5 * 60 * 1000;
+
+    // Save OTP and expiration to the patient document
+    patient.otp = otp;
+    patient.otpExpire = otpExpire;
+    await patient.save();
+
+    // Send OTP via Twilio SMS
+    try {
+      await client.messages.create({
+        body: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
+        from: twilioPhoneNumber,
+        to: number,
+      });
+
+      res.status(200).json({ message: "OTP sent successfully", number });
+    } catch (error) {
+      console.error("Twilio error:", error); // Log Twilio error details
+      res
+        .status(500)
+        .json({ error: "Failed to send OTP", details: error.message });
+    }
   } catch (error) {
+    console.error("Server error:", error); // Log server error details
     res
       .status(500)
-      .json({ message: "Failed to send OTP", error: error.message });
+      .json({
+        error: "An error occurred on the server",
+        details: error.message,
+      });
   }
 };
 
@@ -79,6 +106,8 @@ export const verifyOtp = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+    console.log("Generated Token:", token); // Debugging: Check token generation
+
 
     // Clear OTP and expiration for all patients with the same number
     await Patient.updateMany(

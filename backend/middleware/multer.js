@@ -31,7 +31,7 @@ const singleUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: { fileSize: 10 * 1024 * 1024 } // Limit file size to 10MB
-}).single('reportFile');
+}).array('reportFile',5);
 
 // Configure upload for multiple files
 const multipleUpload = multer({

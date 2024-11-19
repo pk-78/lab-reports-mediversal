@@ -1,5 +1,5 @@
 // const url = "http://localhost:4500";
-const url = "https://lab-reports-mediversal.onrender.com";
-// const url = "https://api.mediversaldiagnostics.in";
+// const url = "https://lab-reports-mediversal.onrender.com";
+const url = import.meta.env.VITE_API_URL;
 
 export default url;
