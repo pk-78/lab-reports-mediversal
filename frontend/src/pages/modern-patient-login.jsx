@@ -89,26 +89,30 @@ const LoginPage = () => {
       }
     } catch (error) {
       // console.log("Error sending OTP", error);
-      toast.error(error.response.data.message);
+      // toast.error(error.response.data.message);
     }
     setLoading(false);
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center p-4">
-      <button
+    <div className="relative min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 ">
+      <div className=" w-full flex items-center justify-center p-4">
+        <img src="../../logo.png" alt="" className="h-32 w-32" />
+      </div>
+      {/* <button
         onClick={() => {
           navigate("/admin-login");
         }}
         className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500"
       >
         Login as Admin
-      </button>
+      </button> */}
+      <div className=" w-full flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
         {/* Hero Section */}
         <div className="md:w-1/2 bg-teal-600 p-8 text-white">
           <h2 className="text-3xl font-bold mb-6">
-            Welcome to Mediversal Healthcare
+            Welcome to Patient Portal
           </h2>
           <p className="mb-8 text-lg">
             Access your health information anytime, anywhere.
@@ -221,6 +225,7 @@ const LoginPage = () => {
             </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );
