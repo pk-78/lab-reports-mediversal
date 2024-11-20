@@ -48,11 +48,12 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Configure upload for a single file
-const singleUpload = multer({
+const singleUpload  = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: { fileSize: 50 * 1024 * 1024 },
 }).array("reportFile", 3); // Allows up to 3 files
+
 
 // Configure upload for multiple files
 const multipleUpload = multer({

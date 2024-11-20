@@ -279,11 +279,9 @@ export const uploadReport = async (req, res) => {
     // Process each uploaded file
     const reports = await Promise.all(
       req.files.map(async (file) => {
-        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
-          file.filename
-        }`;
 
-        // const reportLink = ${req.protocol}://${req.get("host")}/reports/${file.filename};
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
+
         const report = new Report({
           reportType,
           reportName,
