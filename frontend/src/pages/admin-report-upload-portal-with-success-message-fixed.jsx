@@ -4,6 +4,9 @@ import url from "../auth/url";
 import { useNavigate } from "react-router-dom";
 import { GoPencil } from "react-icons/go";
 import toast from "react-hot-toast";
+import diagnosticList from "../auth/diagTest";
+import labList from "../auth/labTest";
+
 
 const AdminReportUploadPortal = () => {
   const [patientSearchTerm, setPatientSearchTerm] = useState("");
@@ -16,34 +19,34 @@ const AdminReportUploadPortal = () => {
   const [multipleFiles, setMultipleFiles] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [multiLoading, setMultiLoading]=useState(false)
+  const [multiLoading, setMultiLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  const labReports = [
-    "Complete Blood Count",
-    "Lipid Profile",
-    "Liver Function Test",
-    "Kidney Function Test",
-    "Thyroid Profile",
-    "HbA1c",
-  ];
+  // const labList = [
+  //   "Complete Blood Count",
+  //   "Lipid Profile",
+  //   "Liver Function Test",
+  //   "Kidney Function Test",
+  //   "Thyroid Profile",
+  //   "HbA1c",
+  // ];
 
-  const diagnosticReports = [
-    "X-Ray",
-    "MRI",
-    "CT Scan",
-    "Ultrasound",
-    "ECG",
-    "EEG",
-  ];
+  // const diagnosticList = [
+  //   "X-Ray",
+  //   "MRI",
+  //   "CT Scan",
+  //   "Ultrasound",
+  //   "ECG",
+  //   "EEG",
+  // ];
 
   useEffect(() => {
-    if (labReports.includes(selectedReport)) {
+    if (labList.includes(selectedReport)) {
       setSelectedReportType("Lab Report");
-    } else if (diagnosticReports.includes(selectedReport)) {
+    } else if (diagnosticList.includes(selectedReport)) {
       setSelectedReportType("Diagnostic Report");
     } else {
       setSelectedReportType("");
@@ -110,7 +113,7 @@ const AdminReportUploadPortal = () => {
       formData.append("reportType", selectedReportType);
       formData.append("reportName", selectedReport);
 
-      console.log("single",file)
+      console.log("single", file);
 
       const response = await axios.post(
         `${url}/api/v1/auth/upload-report`,
@@ -125,12 +128,13 @@ const AdminReportUploadPortal = () => {
       // console.log(`Upload response for ${selectedReport}:`, response.data);
       // toast.success("File uploaded ");
       setShowSuccess(true);
+      setFile(null);
 
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setError(err.message);
       console.error("Error uploading report:", err);
-      toast.error(err.response.data)
+      toast.error(err.response.data);
     } finally {
       setLoading(false);
     }
@@ -175,6 +179,7 @@ const AdminReportUploadPortal = () => {
       setMultipleFiles([]);
     } catch (err) {
       setError(err.message);
+      toast.error("Something Went Wrong")
       console.error("Error uploading report:", err);
     } finally {
       setMultiLoading(false);
@@ -183,10 +188,28 @@ const AdminReportUploadPortal = () => {
 
   // Filter reports based on the search term
   const filterReports = (reports, searchTerm) => {
-    return reports.filter((report) =>
-      report.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+   
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+    
+    
+    const filteredReports = reports.filter((report) => {
+     
+      const normalizedReport = report.trim().toLowerCase();
+  
+      
+      return normalizedReport.includes(normalizedSearchTerm);
+    });
+  
+    
+    const uniqueReports = [...new Set(filteredReports)];
+  
+    
+    console.log('Filtered and Unique Reports:', uniqueReports);
+  
+    return uniqueReports;
   };
+  
+  
 
   const PatientCard = ({ patient }) => (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -410,7 +433,7 @@ const AdminReportUploadPortal = () => {
                 />
               </div>
               <div className="max-h-60 overflow-y-auto">
-                {filterReports(labReports, labSearchTerm).map((report) => (
+                {filterReports(labList, labSearchTerm).map((report) => (
                   <div
                     key={report}
                     className="flex items-center py-2 hover:bg-gray-50 rounded-md transition-colors duration-150"
@@ -418,7 +441,7 @@ const AdminReportUploadPortal = () => {
                     <input
                       type="checkbox"
                       id={report}
-                      checked={selectedReport === report}
+                      checked={selectedReport===report}
                       onChange={() => handleReportToggle(report)}
                       className="form-checkbox h-5 w-5 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
                     />
@@ -428,7 +451,7 @@ const AdminReportUploadPortal = () => {
                     >
                       {report}
                     </label>
-                    {selectedReport === report && (
+                    {selectedReport === report&& (
                       <div>
                         <input
                           type="file"
@@ -480,7 +503,7 @@ const AdminReportUploadPortal = () => {
                 />
               </div>
               <div className="max-h-60 overflow-y-auto">
-                {filterReports(diagnosticReports, diagnosticSearchTerm).map(
+                {filterReports(diagnosticList, diagnosticSearchTerm).map(
                   (report) => (
                     <div
                       key={report}
