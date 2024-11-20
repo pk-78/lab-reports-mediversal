@@ -72,17 +72,20 @@ const OTPVerificationPage = () => {
       // console.log("Verification Response:", response);
 
       if (response.status === 200) {
+        const { token } = response.data;
         toast.success("Verified");
         // console.log(response);
+        localStorage.setItem("patientData", token);
         if (otpData?.method === "uhid") {
           // console.log("ye le", response.data);
+
           navigate(`/dashboard/${response.data.id}`);
         } else {
           if (
             response.data.uhidList.length === 1 ||
             otpData?.method === "uhid"
           ) {
-            navigate(`/dashboard/${response.data.uhidList[0]?._id}`); 
+            navigate(`/dashboard/${response.data.uhidList[0]?._id}`);
           } else if (otpData?.method === "uhid") {
             const matchingItem = uhidList.find(
               (item) => item.UHID === otpData?.uhid
@@ -90,12 +93,12 @@ const OTPVerificationPage = () => {
 
             // const matchingId = matchingItem?._id;
 
-            navigate(`/dashboard/${matchingItem?._id}`); 
+            navigate(`/dashboard/${matchingItem?._id}`);
           } else if (response.data.uhidList.length > 1) {
             navigate("/post-uhid-selection", {
               state: {
                 uhidList: response.data.uhidList,
-                number: otpData?.number, 
+                number: otpData?.number,
               },
             });
           }
@@ -105,13 +108,11 @@ const OTPVerificationPage = () => {
       }
     } catch (error) {
       console.error("Error during OTP verification:", error);
-      
+
       if (error.response) {
-      
         console.error("Server Error:", error.response.data.message);
         toast.error(error.response.data.message);
       } else {
-       
         console.error("Network Error:", error.message);
         toast.error("Network Error");
       }

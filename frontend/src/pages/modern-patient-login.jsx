@@ -86,7 +86,7 @@ const LoginPage = () => {
         toast.error(response.response.error);
       }
     } catch (error) {
-      console.log("Error sending OTP", error);
+      // console.log("Error sending OTP", error);
       toast.error(error.response.data.message);
     }
     setLoading(false);
@@ -97,14 +97,6 @@ const LoginPage = () => {
       <div className=" w-full flex items-center justify-center p-4">
         <img src="../../logo.png" alt="" className="h-32 w-32" />
       </div>
-      {/* <button
-        onClick={() => {
-          navigate("/admin-login");
-        }}
-        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500"
-      >
-        Login as Admin
-      </button> */}
       <div className=" w-full flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
           {/* Hero Section */}
@@ -197,8 +189,22 @@ const LoginPage = () => {
                     }
                     {...register(loginMethod === "uhid" ? "uhid" : "number", {
                       required: "This field is required",
+                      validate: (value) =>
+                        loginMethod === "mobile"
+                          ? value.startsWith("+91") ||
+                            "Mobile number must start with +91"
+                          : true,
                     })}
+                    onInput={(e) => {
+                      if (
+                        loginMethod === "mobile" &&
+                        !e.target.value.startsWith("+91")
+                      ) {
+                        e.target.value = "+91";
+                      }
+                    }}
                   />
+
                   {errors[loginMethod === "uhid" ? "uhid" : "number"] && (
                     <p className="text-red-500 text-xs mt-1">
                       {
