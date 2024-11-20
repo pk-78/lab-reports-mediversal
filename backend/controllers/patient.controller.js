@@ -26,12 +26,10 @@ export const sendOtp = async (req, res) => {
 
     // Validate phone number format
     if (!isValidPhoneNumber(number)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Invalid phone number format. Please use international format (e.g., +1234567890).",
-        });
+      return res.status(400).json({
+        message:
+          "Invalid phone number format. Please use international format (e.g., +1234567890).",
+      });
     }
 
     // Check if patient already exists or create a new entry
@@ -72,12 +70,10 @@ export const sendOtp = async (req, res) => {
     }
   } catch (error) {
     console.error("Server error:", error); // Log server error details
-    res
-      .status(500)
-      .json({
-        error: "An error occurred on the server",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "An error occurred on the server",
+      details: error.message,
+    });
   }
 };
 
@@ -108,7 +104,6 @@ export const verifyOtp = async (req, res) => {
     );
     console.log("Generated Token:", token); // Debugging: Check token generation
 
-
     // Clear OTP and expiration for all patients with the same number
     await Patient.updateMany(
       { number },
@@ -138,7 +133,6 @@ export const verifyOtp = async (req, res) => {
 export const verifyOtpByUhid = async (req, res) => {
   const { UHID, otp } = req.body;
 
-
   const patient = await Patient.findOne({ UHID });
   if (!patient) {
     return res.status(404).json({ message: "Patient not found" });
@@ -155,6 +149,7 @@ export const verifyOtpByUhid = async (req, res) => {
       expiresIn: "1h",
     }
   );
+  console.log("ye le", token);
 
   patient.otp = undefined;
   patient.otpExpire = undefined;
@@ -263,8 +258,9 @@ export const registerPatient = async (req, res) => {
 };
 
 //repoet protuios
+//upload report
 export const uploadReport = async (req, res) => {
-  const { uhidOrNumber, reportType, reportName, reportLink } = req.body;
+  const { uhidOrNumber, reportType, reportName } = req.body;
 
   try {
     const patient = await Patient.findOne({
@@ -275,32 +271,38 @@ export const uploadReport = async (req, res) => {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
     }
 
-    // Generate a URL for the uploaded file
-    const reportLink = `${req.protocol}://${req.get("host")}/reports/${
-      req.file.filename
-    }`;
+    // Process each uploaded file
+    const reports = await Promise.all(
+      req.files.map(async (file) => {
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
+          file.filename
+        }`;
 
-    const report = new Report({
-      reportType,
-      reportName,
-      reportLink, // Save the file URL in MongoDB
-    });
+        // const reportLink = ${req.protocol}://${req.get("host")}/reports/${file.filename};
+        const report = new Report({
+          reportType,
+          reportName,
+          reportLink, // Save file URL in MongoDB
+        });
 
-    await report.save();
+        await report.save();
+        patient.reports.push(report);
+        return report;
+      })
+    );
 
-    patient.reports.push(report);
     await patient.save();
 
-    res.status(201).json({ message: "Report uploaded successfully", report });
+    res.status(201).json({ message: "Reports uploaded successfully", reports });
   } catch (error) {
     console.error(error); // Log the error for debugging
     res
       .status(500)
-      .json({ message: "Error uploading report", error: error.message });
+      .json({ message: "Error uploading reports", error: error.message });
   }
 };
 
@@ -355,8 +357,10 @@ export const uploadMultipleReports = async (req, res) => {
     // Loop through each uploaded file and save it as a report link
     const reports = await Promise.all(
       req.files.map(async (file) => {
-        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
-        
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
+          file.filename
+        }`;
+
         const report = new Report({
           reportLink, // store file link
         });

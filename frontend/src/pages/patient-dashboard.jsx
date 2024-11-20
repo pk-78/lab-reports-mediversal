@@ -197,6 +197,7 @@ const PatientDashboard = ({
             <button
               className="bg-teal-700 px-3 py-1 rounded hover:bg-teal-800"
               onClick={() => {
+                localStorage.removeItem("patientData");
                 navigate("/");
               }}
             >

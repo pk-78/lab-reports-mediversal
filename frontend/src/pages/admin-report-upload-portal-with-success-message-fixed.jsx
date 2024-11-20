@@ -16,6 +16,7 @@ const AdminReportUploadPortal = () => {
   const [multipleFiles, setMultipleFiles] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [multiLoading, setMultiLoading]=useState(false)
   const [fetchLoading, setFetchLoading] = useState(false);
   const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
@@ -109,6 +110,8 @@ const AdminReportUploadPortal = () => {
       formData.append("reportType", selectedReportType);
       formData.append("reportName", selectedReport);
 
+      console.log("single",file)
+
       const response = await axios.post(
         `${url}/api/v1/auth/upload-report`,
         formData,
@@ -127,6 +130,7 @@ const AdminReportUploadPortal = () => {
     } catch (err) {
       setError(err.message);
       console.error("Error uploading report:", err);
+      toast.error(err.response.data)
     } finally {
       setLoading(false);
     }
@@ -145,7 +149,7 @@ const AdminReportUploadPortal = () => {
       return;
     }
 
-    setLoading(true);
+    setMultiLoading(true);
     try {
       const formData = new FormData();
       multipleFiles.forEach((file) => {
@@ -173,7 +177,7 @@ const AdminReportUploadPortal = () => {
       setError(err.message);
       console.error("Error uploading report:", err);
     } finally {
-      setLoading(false);
+      setMultiLoading(false);
     }
   };
 
@@ -183,68 +187,6 @@ const AdminReportUploadPortal = () => {
       report.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
-
-  const ReportSection = ({
-    title,
-    reports,
-    searchTerm,
-    setSearchTerm,
-    icon,
-  }) => (
-    <div className="mb-8 bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-          {icon}
-          <span className="ml-2">{title}</span>
-        </h2>
-      </div>
-      <div className="p-4">
-        <div className="mb-4 relative">
-          <input
-            type="text"
-            placeholder={`Search ${title}`}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-          />
-        </div>
-        <div className="max-h-60 overflow-y-auto">
-          {filterReports(reports, searchTerm).map((report) => (
-            <div
-              key={report}
-              className="flex items-center py-2 hover:bg-gray-50 rounded-md transition-colors duration-150"
-            >
-              <input
-                type="checkbox"
-                id={report}
-                checked={selectedReport === report}
-                onChange={() => handleReportToggle(report)}
-                className="form-checkbox h-5 w-5 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
-              />
-              <label htmlFor={report} className="ml-3 flex-grow cursor-pointer">
-                {report}
-              </label>
-              {selectedReport === report && (
-                <div>
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
-                    aria-label={`Upload file for ${report}`}
-                  />
-                  {file && (
-                    <p className="text-sm text-gray-600 mt-2">
-                      Selected file: {file.name}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   const PatientCard = ({ patient }) => (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -422,7 +364,7 @@ const AdminReportUploadPortal = () => {
             <input
               type="file"
               onChange={handleMultipleFileChange}
-              disabled={loading}
+              disabled={multiLoading}
               multiple
               className=""
             />
@@ -430,56 +372,154 @@ const AdminReportUploadPortal = () => {
               onClick={handleMultipleUpload}
               className=" px-1 py-1 text-sm text-white rounded-md shadow-md bg-teal-600 hover:bg-teal-700"
             >
-              {loading ? "Uploading..." : "Bulk Upload"}
+              {multiLoading ? "Uploading..." : "Bulk Upload"}
             </button>
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ReportSection
-            title="Lab Reports"
-            reports={labReports}
-            searchTerm={labSearchTerm}
-            setSearchTerm={setLabSearchTerm}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12l-3-3m0 0l-3 3m3-3v12m6-12h3M9 12H6m12 0h3M6 21h12"
+          {/* // lab reports upload */}
+          <div className="mb-8 bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12l-3-3m0 0l-3 3m3-3v12m6-12h3M9 12H6m12 0h3M6 21h12"
+                  />
+                </svg>
+                <span className="ml-2">Lab Report</span>
+              </h2>
+            </div>
+            <div className="p-4">
+              <div className="mb-4 relative">
+                <input
+                  type="text"
+                  placeholder="Search Lab Report"
+                  value={labSearchTerm}
+                  onChange={(e) => setLabSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
-              </svg>
-            }
-          />
-          <ReportSection
-            title="Diagnostic Reports"
-            reports={diagnosticReports}
-            searchTerm={diagnosticSearchTerm}
-            setSearchTerm={setDiagnosticSearchTerm}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 19V6h6v13"
+              </div>
+              <div className="max-h-60 overflow-y-auto">
+                {filterReports(labReports, labSearchTerm).map((report) => (
+                  <div
+                    key={report}
+                    className="flex items-center py-2 hover:bg-gray-50 rounded-md transition-colors duration-150"
+                  >
+                    <input
+                      type="checkbox"
+                      id={report}
+                      checked={selectedReport === report}
+                      onChange={() => handleReportToggle(report)}
+                      className="form-checkbox h-5 w-5 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
+                    />
+                    <label
+                      htmlFor={report}
+                      className="ml-3 flex-grow cursor-pointer"
+                    >
+                      {report}
+                    </label>
+                    {selectedReport === report && (
+                      <div>
+                        <input
+                          type="file"
+                          onChange={handleFileChange}
+                          className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+                          aria-label={`Upload file for ${report}`}
+                        />
+                        {file && (
+                          <p className="text-sm text-gray-600 mt-2">
+                            Selected file: {file.name}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8 bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19V6h6v13"
+                  />
+                </svg>
+                <span className="ml-2">Diagnostic Reports</span>
+              </h2>
+            </div>
+            <div className="p-4">
+              <div className="mb-4 relative">
+                <input
+                  type="text"
+                  placeholder="Search Diagnostic Reports"
+                  value={diagnosticSearchTerm}
+                  onChange={(e) => setDiagnosticSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
-              </svg>
-            }
-          />
+              </div>
+              <div className="max-h-60 overflow-y-auto">
+                {filterReports(diagnosticReports, diagnosticSearchTerm).map(
+                  (report) => (
+                    <div
+                      key={report}
+                      className="flex items-center py-2 hover:bg-gray-50 rounded-md transition-colors duration-150"
+                    >
+                      <input
+                        type="checkbox"
+                        id={report}
+                        checked={selectedReport === report}
+                        onChange={() => handleReportToggle(report)}
+                        className="form-checkbox h-5 w-5 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
+                      />
+                      <label
+                        htmlFor={report}
+                        className="ml-3 flex-grow cursor-pointer"
+                      >
+                        {report}
+                      </label>
+                      {selectedReport === report && (
+                        <div>
+                          <input
+                            type="file"
+                            onChange={handleFileChange}
+                            className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+                            aria-label={`Upload file for ${report}`}
+                          />
+                          {file && (
+                            <p className="text-sm text-gray-600 mt-2">
+                              Selected file: {file.name}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {selectedPatient && (
