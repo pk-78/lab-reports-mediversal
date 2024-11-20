@@ -259,7 +259,7 @@ export const registerPatient = async (req, res) => {
 
 //repoet protuios
 export const uploadReport = async (req, res) => {
-  const { uhidOrNumber, reportType, reportName, reportLink } = req.body;
+  const { uhidOrNumber, reportType, reportName } = req.body;
 
   try {
     const patient = await Patient.findOne({
@@ -270,32 +270,34 @@ export const uploadReport = async (req, res) => {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded" });
     }
 
-    // Generate a URL for the uploaded file
-    const reportLink = `${req.protocol}://${req.get("host")}/reports/${
-      req.file.filename
-    }`;
+    // Process each uploaded file
+    const reports = await Promise.all(
+      req.files.map(async (file) => {
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
+        const report = new Report({
+          reportType,
+          reportName,
+          reportLink, // Save file URL in MongoDB
+        });
 
-    const report = new Report({
-      reportType,
-      reportName,
-      reportLink, // Save the file URL in MongoDB
-    });
+        await report.save();
+        patient.reports.push(report);
+        return report;
+      })
+    );
 
-    await report.save();
-
-    patient.reports.push(report);
     await patient.save();
 
-    res.status(201).json({ message: "Report uploaded successfully", report });
+    res.status(201).json({ message: "Reports uploaded successfully", reports });
   } catch (error) {
     console.error(error); // Log the error for debugging
     res
       .status(500)
-      .json({ message: "Error uploading report", error: error.message });
+      .json({ message: "Error uploading reports", error: error.message });
   }
 };
 
