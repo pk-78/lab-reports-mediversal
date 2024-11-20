@@ -95,14 +95,14 @@ const LoginPage = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 ">
       <div className=" w-full flex items-center justify-center p-4">
-        <img src="../../logo.png" alt="" className="h-32 w-32" />
+        <img src="../../MediversalDetailLogo.png" alt="" className="h-32 w-80" />
       </div>
       <div className=" w-full flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
           {/* Hero Section */}
           <div className="md:w-1/2 bg-teal-600 p-8 text-white">
             <h2 className="text-3xl font-bold mb-6">
-              Welcome to Patient Portal
+              Welcome to Mediversal Patient Portal
             </h2>
             <p className="mb-8 text-lg">
               Access your health information anytime, anywhere.

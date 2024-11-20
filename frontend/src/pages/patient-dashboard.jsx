@@ -98,15 +98,26 @@ const PatientDashboard = ({
     </button>
   );
 
-  const ReportCard = ({ id, title, date, status, reportLink }) => {
+  const ReportCard = ({ id, title, date, status, reportLink,activeTab }) => {
     const formattedReportLink = `${reportLink.replace(/\\/g, "/")}`; // Normalize the link
 
     const [datePart, timePart] = date ? date.split("T") : ["N/A", "N/A"];
     const time = timePart?.split(".")[0] || "N/A"; // Handle missing time part
 
+    
+    let multiFileName = "";
+    if (reportLink.includes("anonymous")) {
+      const dynamicPart = reportLink.split("anonymous_")[1]; // Extracts part after 'anonymous_'
+      multiFileName = dynamicPart.split("_").slice(1).join("_"); // Removes ID and joins the rest
+    } else {
+      multiFileName = "Name Not Found"; // Or any placeholder you prefer
+    }
+    
+    
+
     return (
       <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-        <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
+        <h3 className="font-semibold text-lg text-gray-800">{activeTab==="otherReport"?multiFileName:title}</h3>
         <p className="text-sm text-gray-600">Date: {datePart}</p>
         <p className="text-sm text-gray-600">Time: {time}</p>
         <span
@@ -291,6 +302,7 @@ const PatientDashboard = ({
                         reportLink={report.reportLink}
                         date={report.date}
                         status={report.status}
+                        activeTab={activeTab}
                       />
                     ))
                 ) : (
