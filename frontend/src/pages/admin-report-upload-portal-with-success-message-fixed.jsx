@@ -104,16 +104,19 @@ const AdminReportUploadPortal = () => {
       alert("Please select a patient and report type before uploading.");
       return;
     }
+    // console.log(selectedPatient)
 
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append("reportFile", file);
-      formData.append("uhidOrNumber", selectedPatient.number);
+      formData.append("uhidOrNumber", selectedPatient.UHID);
       formData.append("reportType", selectedReportType);
       formData.append("reportName", selectedReport);
 
-      console.log("single", file);
+      console.log(selectedPatient.number)
+
+      // console.log("single", file);
 
       const response = await axios.post(
         `${url}/api/v1/auth/upload-report`,
@@ -159,7 +162,7 @@ const AdminReportUploadPortal = () => {
       multipleFiles.forEach((file) => {
         formData.append("reports", file);
       });
-      formData.append("uhidOrNumber", selectedPatient.number);
+      formData.append("uhidOrNumber", selectedPatient.UHID);
 
       const response = await axios.post(
         `${url}/api/v1/auth/upload-multiple-reports`,
@@ -204,7 +207,7 @@ const AdminReportUploadPortal = () => {
     const uniqueReports = [...new Set(filteredReports)];
   
     
-    console.log('Filtered and Unique Reports:', uniqueReports);
+    // console.log('Filtered and Unique Reports:', uniqueReports);
   
     return uniqueReports;
   };
