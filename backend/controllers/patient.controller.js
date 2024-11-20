@@ -35,7 +35,8 @@ export const sendOtp = async (req, res) => {
     // Check if patient already exists or create a new entry
     let patient = await Patient.findOne({ number });
     if (!patient) {
-      patient = new Patient({ number });
+      console.log("Patient does not exist")
+      return res.status(400).json({ message: "Patient does not exist" });
     }
 
     // Generate OTP
@@ -278,11 +279,9 @@ export const uploadReport = async (req, res) => {
     // Process each uploaded file
     const reports = await Promise.all(
       req.files.map(async (file) => {
-        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
-          file.filename
-        }`;
 
-        // const reportLink = ${req.protocol}://${req.get("host")}/reports/${file.filename};
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
+
         const report = new Report({
           reportType,
           reportName,
