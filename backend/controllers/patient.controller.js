@@ -353,31 +353,32 @@ export const uploadMultipleReports = async (req, res) => {
       return res.status(400).json({ message: "No files uploaded" });
     }
 
-    // Loop through each uploaded file and save it as a report link
+    // Save each uploaded file as a report
     const reports = await Promise.all(
       req.files.map(async (file) => {
-        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
-          file.filename
-        }`;
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
 
         const report = new Report({
-          reportLink, // store file link
+          reportType: req.body.reportType,
+          reportName: req.body.reportName,
+          reportLink,
         });
+
         await report.save();
-        patient.reports.push(report);
+        patient.reports.push(report._id);
         return report;
       })
     );
 
+    // Save updated patient
     await patient.save();
 
     res.status(201).json({ message: "Reports uploaded successfully", reports });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error uploading reports", error: error.message });
+    res.status(500).json({ message: "Error uploading reports", error: error.message });
   }
 };
+
 
 // get uhid by number
 export const getUHIDsByNumber = async (req, res) => {
