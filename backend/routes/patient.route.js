@@ -48,7 +48,7 @@ patientRoute.post(
 
 patientRoute.get("/reports/:id", getPatientReports);
 patientRoute.post('/getUHIDsByNumber', getUHIDsByNumber);
-patientRoute.post("/bulk-upload", upload.single("file"), bulkUploadPatients);
+patientRoute.post("/bulk-upload", upload.single("csvFile"), bulkUploadPatients);
 
 
 
