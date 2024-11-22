@@ -122,8 +122,8 @@ const AdminUserManagementDashboard = () => {
   
     const formData = new FormData();
     formData.append('csvFile', file);
-    console.log(file)
-    console.log("ye le",formData)
+    // console.log(file)
+    // console.log("ye le",formData)
   
     try {
       
@@ -143,7 +143,7 @@ const AdminUserManagementDashboard = () => {
 
       console.error('Error uploading CSV file:', error);
       if (error.response) {
-        console.log("error",error.response.data)
+        // console.log("error",error.response.data)
         alert(`Error: ${error.response.data}`);
       } else {
         

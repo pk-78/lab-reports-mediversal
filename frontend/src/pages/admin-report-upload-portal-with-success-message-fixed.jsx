@@ -27,35 +27,6 @@ const AdminReportUploadPortal = () => {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  // const labList = [
-  //   "Complete Blood Count",
-  //   "Lipid Profile",
-  //   "Liver Function Test",
-  //   "Kidney Function Test",
-  //   "Thyroid Profile",
-  //   "HbA1c",
-  // ];
-
-  // const diagnosticList = [
-  //   "X-Ray",
-  //   "MRI",
-  //   "CT Scan",
-  //   "Ultrasound",
-  //   "ECG",
-  //   "EEG",
-  // ];
-
-  // useEffect(() => {
-  //   if (labList.includes(selectedReport)) {
-  //     setSelectedReportType("Lab Report");
-  //     console.log(selectedReportType)
-  //   } else if (diagnosticList.includes(selectedReport)) {
-  //     setSelectedReportType("Diagnostic Report");
-  //     console.log(selectedReportType)
-  //   } else {
-  //     setSelectedReportType("");
-  //   }
-  // }, [selectedReport]);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -96,10 +67,9 @@ const AdminReportUploadPortal = () => {
     const selectedFile = e.target.files[0]; // Get the first selected file
 
     if (selectedFile) {
-      // Push the file and its associated data into the array
-      // const reportName = Object.keys(selectedReport)[0]
-      console.log(selectedReportType)
-      console.log("ye leeeeee",currentReportName)
+      
+      // console.log(selectedReportType)
+      // console.log("ye leeeeee",currentReportName)
       setSingleFileArray((prevData) => [
         ...prevData,
         {
@@ -129,7 +99,7 @@ const AdminReportUploadPortal = () => {
       alert("Please select a patient and report type before uploading.");
       return;
     }
-    console.log(singleFileArray)
+    // console.log(singleFileArray)
 
     setLoading(true);
     try {
@@ -216,7 +186,7 @@ const AdminReportUploadPortal = () => {
     }
   };
 
-  console.log(error)
+  // console.log(error)
 
   // Filter reports based on the search term
   const filterReports = (reports, searchTerm) => {

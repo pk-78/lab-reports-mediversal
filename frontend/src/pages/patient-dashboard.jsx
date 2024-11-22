@@ -133,7 +133,7 @@ const PatientDashboard = ({
           <button
             onClick={() => {
               window.open(reportLink, "_blank");
-              console.log(reportLink);
+              // console.log(reportLink);
             }}
             className="text-teal-600 hover:text-teal-800"
           >
