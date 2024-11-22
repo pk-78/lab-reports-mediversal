@@ -4,8 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import url from "../auth/url";
 import reportLink from "path";
 
-
-
 const sampleLabReports = [
   {
     id: "L1",
@@ -37,6 +35,7 @@ const PatientDashboard = ({
   const [patientdata, setPatientData] = useState("");
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState();
+  const [downloading, setDownloading]=useState(false)
   const { id } = useParams();
   const [patientReportData, setPatientReportData] = useState();
   const navigate = useNavigate();
@@ -98,13 +97,14 @@ const PatientDashboard = ({
     </button>
   );
 
-  const ReportCard = ({ id, title, date, status, reportLink,activeTab }) => {
-    const formattedReportLink = `${reportLink.replace(/\\/g, "/")}`; // Normalize the link
+  const ReportCard = ({ id, title, date, status, reportLink, activeTab }) => {
+    // const formattedReportLink = `${reportLink.replace(/\\/g, "/")}`; // Normalize the link
+    // console.log("ye le", reportLink);
+    // console.log('ye le', formattedReportLink)
 
     const [datePart, timePart] = date ? date.split("T") : ["N/A", "N/A"];
     const time = timePart?.split(".")[0] || "N/A"; // Handle missing time part
 
-    
     let multiFileName = "";
     if (reportLink.includes("anonymous")) {
       const dynamicPart = reportLink.split("anonymous_")[1]; // Extracts part after 'anonymous_'
@@ -112,12 +112,12 @@ const PatientDashboard = ({
     } else {
       multiFileName = "Name Not Found"; // Or any placeholder you prefer
     }
-    
-    
 
     return (
       <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
-        <h3 className="font-semibold text-lg text-gray-800">{activeTab==="otherReport"?multiFileName:title}</h3>
+        <h3 className="font-semibold text-lg text-gray-800">
+          {activeTab === "otherReport" ? multiFileName : title}
+        </h3>
         <p className="text-sm text-gray-600">Date: {datePart}</p>
         <p className="text-sm text-gray-600">Time: {time}</p>
         <span
@@ -131,18 +131,20 @@ const PatientDashboard = ({
         </span>
         <div className="mt-4 flex justify-between items-center">
           <button
-            onClick={() => window.open(reportLink, "_blank")}
+            onClick={() => {
+              window.open(reportLink, "_blank");
+              console.log(reportLink);
+            }}
             className="text-teal-600 hover:text-teal-800"
           >
             View
           </button>
           <button
-            onClick={() => downloadReport(reportLink)}
+            onClick={() => downloadReport(reportLink,multiFileName)}
             className="bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
           >
             Download
           </button>
-          
         </div>
         {viewData && (
           <div className="mt-4">
@@ -157,31 +159,38 @@ const PatientDashboard = ({
     );
   };
 
-  // const downloadReport = (fileUrl, filename) => {
-  //   const link = document.createElement("a");
-  //   link.href = fileUrl; // The link to the file
-  //   link.download = filename; // The filename to save the file as
-  //   link.click(); // Trigger the download
-  // };
 
-  const downloadReport = async (imageUrl,) => {
+
+
+  const downloadReport = async (fileUrl,multiFileName) => {
+    setDownloading(true);
     try {
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = imageUrl.split('/').pop();
-        link.click();
-
-        URL.revokeObjectURL(blobUrl);
+      // Make a request to your backend to fetch the file
+      const response = await axios.get(`${url}/api/v1/auth/download`, {
+        params: { url: fileUrl }, // Pass the file URL as a query parameter
+        responseType: 'blob', // Important: Set the response type to blob
+      });
+  
+      // Convert the response into a blob URL
+      const blob = response.data;
+      const blobUrl = URL.createObjectURL(blob);
+  
+      // Create a download link
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = multiFileName; // Use the original file name
+      link.click();
+  
+      // Clean up the object URL
+      URL.revokeObjectURL(blobUrl);
     } catch (error) {
-        console.error('Error downloading the image:', error);
+      console.error('Error downloading file:', error);
     }
-};
-
-
+    setDownloading(false)
+  };
+  
+ 
+  
 
   const sortReports = (reports) => {
     return [...reports].sort((a, b) => {

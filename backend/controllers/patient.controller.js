@@ -5,6 +5,7 @@ import Patient from "../models/patient.model.js";
 import Report from "../models/report.model.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import axios from "axios";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -404,3 +405,22 @@ export const getUHIDsByNumber = async (req, res) => {
     });
   }
 };
+export const downloadFile = async (req, res) => {
+  const fileUrl = req.query.url;
+  console.log('Received file URL:', fileUrl); // Log the file URL for debugging
+
+  try {
+    const response = await axios.get(fileUrl, { responseType: 'stream' });
+
+    console.log('Response headers:', response.headers); // Log the response headers
+
+    res.setHeader('Content-Type', response.headers['content-type']);
+    res.setHeader('Content-Disposition', `attachment; filename=${fileUrl.split('/').pop()}`);
+
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error in downloadFile controller:', error.message);
+    res.status(500).send('Error downloading file');
+  }
+};
+

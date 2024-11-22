@@ -32,13 +32,12 @@ const AdminUserManagementDashboard = () => {
     } else {
       try {
         const newUserWithId = { ...newUser };
-       
+
         const response = await axios.post(
           `${url}/api/v1/admin/admin-users`,
           newUserWithId
         );
 
-       
         setUsers([...users, newUserWithId]);
         toast.success("User created successfully!");
         setSuccessMessage("User created successfully!");
@@ -104,6 +103,56 @@ const AdminUserManagementDashboard = () => {
       )
     );
   };
+
+  /// csv
+  const [file, setFile] = useState(null);
+
+  const handleFileUpload = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!file) {
+      alert('Please select a file to upload');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('csvFile', file);
+    console.log(file)
+    console.log("ye le",formData)
+  
+    try {
+      
+      const response = await axios.post(`${url}/api/v1/auth/upload-csv`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+    
+      if (response.status === 200) {
+        toast.success('CSV file uploaded successfully!');
+      } else {
+        toast.error('Failed to upload CSV file');
+      }
+    } catch (error) {
+
+      console.error('Error uploading CSV file:', error);
+      if (error.response) {
+        console.log("error",error.response.data)
+        alert(`Error: ${error.response.data}`);
+      } else {
+        
+        alert('Error uploading CSV file');
+      }
+    }
+  };
+
+  //csv
 
   const SuccessMessage = ({ message }) => (
     <div className="fixed bottom-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center transition-all duration-500 ease-in-out transform translate-y-0 opacity-100">
@@ -239,6 +288,46 @@ const AdminUserManagementDashboard = () => {
               </div>
             </form>
           </div>
+
+          {/* bulk upload */}
+          <div className="max-w-4xl p-6 bg-teal-50 rounded-lg shadow-lg">
+            <h1 className="text-3xl font-bold text-teal-800 mb-6">
+              Bulk Upload Patient Data
+            </h1>
+
+            <div className="mb-6">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="csv-upload"
+              />
+              <div className="flex items-center space-x-4">
+                <label
+                  htmlFor="csv-upload"
+                  className="flex items-center justify-center px-4 py-2 border border-teal-300 rounded-md shadow-sm text-sm font-medium text-teal-700 bg-white hover:bg-teal-50 cursor-pointer"
+                >
+                  Choose CSV File
+                </label>
+              </div>
+              <p className="mt-2 text-sm text-teal-600">
+                Upload a CSV file with columns: Name, UHID, Mobile Number
+              </p>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              className="bg-teal-600  px-4 py-2 rounded hover:bg-teal-700 text-white"
+            >
+              {/* <FileText className="mr-2 h-5 w-5" /> */}
+              Submit Bulk Upload
+            </button>
+          </div>
+
+{/* csv */}
+
+
           <div>
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               Existing Admin Users

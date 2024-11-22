@@ -1,6 +1,7 @@
 // routes/patient.route.js
 import express from "express";
 import {
+  downloadFile,
   getAllPatients,
   getPatientById,
   getPatientReports,
@@ -46,6 +47,7 @@ patientRoute.post(
 
 patientRoute.get("/reports/:id", getPatientReports);
 patientRoute.post('/getUHIDsByNumber', getUHIDsByNumber);
+patientRoute.get('/download',downloadFile)
 
 
 export default patientRoute;
