@@ -442,7 +442,7 @@ export const downloadFile = async (req, res) => {
 
 
 // Bulk upload controller
-export const bulkUploadPatients = async (req, res) => {
+const bulkUploadPatients = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
