@@ -11,7 +11,6 @@ import axios from "axios";
 import csvParser from "csv-parser";
 import fs from "fs";
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -41,7 +40,7 @@ export const sendOtp = async (req, res) => {
     // Check if patient already exists or create a new entry
     let patient = await Patient.findOne({ number });
     if (!patient) {
-      console.log("Patient does not exist")
+      console.log("Patient does not exist");
       return res.status(400).json({ message: "Patient does not exist" });
     }
 
@@ -285,8 +284,9 @@ export const uploadReport = async (req, res) => {
     // Process each uploaded file
     const reports = await Promise.all(
       req.files.map(async (file) => {
-
-        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
+          file.filename
+        }`;
 
         const report = new Report({
           reportType,
@@ -362,7 +362,9 @@ export const uploadMultipleReports = async (req, res) => {
     // Save each uploaded file as a report
     const reports = await Promise.all(
       req.files.map(async (file) => {
-        const reportLink = `${req.protocol}://${req.get("host")}/reports/${file.filename}`;
+        const reportLink = `${req.protocol}://${req.get("host")}/reports/${
+          file.filename
+        }`;
 
         const report = new Report({
           reportType: req.body.reportType,
@@ -381,10 +383,11 @@ export const uploadMultipleReports = async (req, res) => {
 
     res.status(201).json({ message: "Reports uploaded successfully", reports });
   } catch (error) {
-    res.status(500).json({ message: "Error uploading reports", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error uploading reports", error: error.message });
   }
 };
-
 
 // get uhid by number
 export const getUHIDsByNumber = async (req, res) => {
@@ -414,32 +417,27 @@ export const getUHIDsByNumber = async (req, res) => {
 
 export const downloadFile = async (req, res) => {
   const fileUrl = req.query.url;
-  console.log('Received file URL:', fileUrl); // Log the file URL for debugging
+  console.log("Received file URL:", fileUrl); // Log the file URL for debugging
 
   try {
-    const response = await axios.get(fileUrl, { responseType: 'stream' });
+    const response = await axios.get(fileUrl, { responseType: "stream" });
 
-    console.log('Response headers:', response.headers); // Log the response headers
+    console.log("Response headers:", response.headers); // Log the response headers
 
-    res.setHeader('Content-Type', response.headers['content-type']);
-    res.setHeader('Content-Disposition', `attachment; filename=${fileUrl.split('/').pop()}`);
+    res.setHeader("Content-Type", response.headers["content-type"]);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${fileUrl.split("/").pop()}`
+    );
 
     response.data.pipe(res);
   } catch (error) {
-    console.error('Error in downloadFile controller:', error.message);
-    res.status(500).send('Error downloading file');
+    console.error("Error in downloadFile controller:", error.message);
+    res.status(500).send("Error downloading file");
   }
+};
 
-
-
-
-
-//csv file uploads 
-
-
-
-
-
+//csv file uploads
 
 // Bulk upload controller
 export const bulkUploadPatients = async (req, res) => {
@@ -473,16 +471,21 @@ export const bulkUploadPatients = async (req, res) => {
         // Clean up the uploaded file
         fs.unlinkSync(filePath);
 
-        res
-          .status(200)
-          .json({ message: "Patients uploaded successfully", patients: patientsData });
+        res.status(200).json({
+          message: "Patients uploaded successfully",
+          patients: patientsData,
+        });
       } catch (error) {
         console.error("Error saving patients:", error);
-        res.status(500).json({ message: "Error saving patients", error: error.message });
+        res
+          .status(500)
+          .json({ message: "Error saving patients", error: error.message });
       }
     })
     .on("error", (error) => {
       console.error("Error reading CSV file:", error);
-      res.status(500).json({ message: "Error reading CSV file", error: error.message });
+      res
+        .status(500)
+        .json({ message: "Error reading CSV file", error: error.message });
     });
 };

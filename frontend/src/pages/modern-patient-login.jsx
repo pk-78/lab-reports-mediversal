@@ -86,8 +86,8 @@ const LoginPage = () => {
         toast.error(response.response.error);
       }
     } catch (error) {
-      // console.log("Error sending OTP", error);
-      toast.error(error.response.data.message);
+      console.log("Error sending OTP", error);
+      // toast.error(error.response.data.message);
     }
     setLoading(false);
   };
