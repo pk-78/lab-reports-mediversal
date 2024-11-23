@@ -442,7 +442,7 @@ export const downloadFile = async (req, res) => {
 
 
 // Bulk upload controller
-const bulkUploadPatients = async (req, res) => {
+export const bulkUploadPatients = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
@@ -485,6 +485,4 @@ const bulkUploadPatients = async (req, res) => {
       console.error("Error reading CSV file:", error);
       res.status(500).json({ message: "Error reading CSV file", error: error.message });
     });
-
 };
-
