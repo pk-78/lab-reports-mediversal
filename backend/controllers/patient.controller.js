@@ -5,6 +5,8 @@ import Patient from "../models/patient.model.js";
 import Report from "../models/report.model.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import csvParser from "csv-parser";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -405,3 +407,60 @@ export const getUHIDsByNumber = async (req, res) => {
     });
   }
 };
+
+
+
+
+//csv file uploads 
+
+
+
+
+
+
+// Bulk upload controller
+export const bulkUploadPatients = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  const filePath = req.file.path; // Path to the uploaded CSV file
+  const patientsData = [];
+
+  // Read and parse the CSV file
+  fs.createReadStream(filePath)
+    .pipe(csvParser())
+    .on("data", (row) => {
+      // Each row represents a patient record
+      patientsData.push(row);
+    })
+    .on("end", async () => {
+      try {
+        // Validate and save patients to database
+        const bulkOps = patientsData.map((data) => ({
+          updateOne: {
+            filter: { UHID: data.UHID }, // Use a unique field like UHID to prevent duplication
+            update: { $set: data },
+            upsert: true, // Insert if the record does not exist
+          },
+        }));
+
+        await Patient.bulkWrite(bulkOps);
+
+        // Clean up the uploaded file
+        fs.unlinkSync(filePath);
+
+        res
+          .status(200)
+          .json({ message: "Patients uploaded successfully", patients: patientsData });
+      } catch (error) {
+        console.error("Error saving patients:", error);
+        res.status(500).json({ message: "Error saving patients", error: error.message });
+      }
+    })
+    .on("error", (error) => {
+      console.error("Error reading CSV file:", error);
+      res.status(500).json({ message: "Error reading CSV file", error: error.message });
+    });
+};
+

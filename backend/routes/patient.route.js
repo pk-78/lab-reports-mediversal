@@ -1,6 +1,7 @@
 // routes/patient.route.js
 import express from "express";
 import {
+  bulkUploadPatients,
   getAllPatients,
   getPatientById,
   getPatientReports,
@@ -14,6 +15,7 @@ import {
   verifyOtpByUhid,
 } from "../controllers/patient.controller.js";
 import { multipleUpload, singleUpload } from "../middleware/multer.js";
+import { upload } from "../middleware/csvmulte.js";
 
 const patientRoute = express.Router();
 
@@ -46,6 +48,8 @@ patientRoute.post(
 
 patientRoute.get("/reports/:id", getPatientReports);
 patientRoute.post('/getUHIDsByNumber', getUHIDsByNumber);
+patientRoute.post("/bulk-upload", upload.single("csvFile"), bulkUploadPatients);
+
 
 
 export default patientRoute;
