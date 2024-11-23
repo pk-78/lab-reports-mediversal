@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import url from "../auth/url";
 import { useNavigate } from "react-router-dom";
+import url from "../auth/url";
 
 const AdminUserManagementDashboard = () => {
   const [newUser, setNewUser] = useState({
@@ -34,8 +34,8 @@ const AdminUserManagementDashboard = () => {
         const newUserWithId = { ...newUser };
 
         const response = await axios.post(
-          `${url}/api/v1/admin/admin-users`,
-          newUserWithId
+          `${url}/api/v1/admin/admin-users,
+          newUserWithId`
         );
 
         setUsers([...users, newUserWithId]);
@@ -116,6 +116,7 @@ const AdminUserManagementDashboard = () => {
 
   const handleSubmit = async () => {
     if (!file) {
+
       alert('Please select a file to upload');
       return;
     }
@@ -125,29 +126,32 @@ const AdminUserManagementDashboard = () => {
     // console.log(file)
     // console.log("ye le",formData)
   
-    try {
-      
-      const response = await axios.post(`${url}/api/v1/auth/upload-csv`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-  
-    
+   try {
+      const response = await axios.post(
+        `${url}/api/v1/auth/bulk-upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       if (response.status === 200) {
-        toast.success('CSV file uploaded successfully!');
+        toast.success("CSV file uploaded successfully!");
       } else {
-        toast.error('Failed to upload CSV file');
+        toast.error("Failed to upload CSV file");
       }
     } catch (error) {
 
       console.error('Error uploading CSV file:', error);
       if (error.response) {
         // console.log("error",error.response.data)
-        alert(`Error: ${error.response.data}`);
+        toast.error("Faild to upload csv file");
       } else {
         
-        alert('Error uploading CSV file');
+         toast.error("Faild to upload csv file");
+
       }
     }
   };
@@ -325,7 +329,6 @@ const AdminUserManagementDashboard = () => {
             </button>
           </div>
 
-{/* csv */}
 
 
           <div>
