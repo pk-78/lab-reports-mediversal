@@ -13,9 +13,11 @@ const AdminReportUploadPortal = () => {
   const [labSearchTerm, setLabSearchTerm] = useState("");
   const [diagnosticSearchTerm, setDiagnosticSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState("");
-  const [selectedReport, setSelectedReport] = useState("");
+  const [selectedReport, setSelectedReport] = useState([]);
   const [selectedReportType, setSelectedReportType] = useState("");
+  const [currentReportName, setCurrentReportName]= useState("")
   const [file, setFile] = useState(null); // Store the file to be uploaded
+  const [singleFileArray, setSingleFileArray]= useState([])
   const [multipleFiles, setMultipleFiles] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,33 +27,6 @@ const AdminReportUploadPortal = () => {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  // const labList = [
-  //   "Complete Blood Count",
-  //   "Lipid Profile",
-  //   "Liver Function Test",
-  //   "Kidney Function Test",
-  //   "Thyroid Profile",
-  //   "HbA1c",
-  // ];
-
-  // const diagnosticList = [
-  //   "X-Ray",
-  //   "MRI",
-  //   "CT Scan",
-  //   "Ultrasound",
-  //   "ECG",
-  //   "EEG",
-  // ];
-
-  useEffect(() => {
-    if (labList.includes(selectedReport)) {
-      setSelectedReportType("Lab Report");
-    } else if (diagnosticList.includes(selectedReport)) {
-      setSelectedReportType("Diagnostic Report");
-    } else {
-      setSelectedReportType("");
-    }
-  }, [selectedReport]);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -83,14 +58,34 @@ const AdminReportUploadPortal = () => {
   };
 
   const handleReportToggle = (reportName) => {
-    setSelectedReport((prev) => (prev === reportName ? "" : reportName));
-    setFile(null);
+    setSelectedReport(prev => ({
+      ...prev,
+      [reportName]: !prev[reportName]
+    }));
   };
-
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile); // Set the selected file
+    const selectedFile = e.target.files[0]; // Get the first selected file
+
+    if (selectedFile) {
+      
+      // console.log(selectedReportType)
+      // console.log("ye leeeeee",currentReportName)
+      setSingleFileArray((prevData) => [
+        ...prevData,
+        {
+          reportFile: selectedFile,
+          uhidOrNumber: selectedPatient.UHID,
+          reportType: selectedReportType,
+          reportName: currentReportName
+        }
+      ]);
+    }
+    setFile(selectedFile)
   };
+  // const handleFileChange = (e) => {
+  //   const selectedFile = e.target.files[0];
+  //   setFile(selectedFile); // Set the selected file
+  // };
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -104,17 +99,18 @@ const AdminReportUploadPortal = () => {
       alert("Please select a patient and report type before uploading.");
       return;
     }
-    // console.log(selectedPatient)
+    // console.log(singleFileArray)
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("reportFile", file);
-      formData.append("uhidOrNumber", selectedPatient.UHID);
-      formData.append("reportType", selectedReportType);
-      formData.append("reportName", selectedReport);
+      for (let i = 0; i < singleFileArray.length; i++) {
+        const fileData = singleFileArray[i];
 
-      console.log(selectedPatient.number)
+        const formData = new FormData();
+        formData.append("reportFile", fileData.reportFile);
+        formData.append("uhidOrNumber", fileData.uhidOrNumber);
+        formData.append("reportType", fileData.reportType);
+        formData.append("reportName", fileData.reportName);
 
       // console.log("single", file);
 
@@ -127,6 +123,7 @@ const AdminReportUploadPortal = () => {
           },
         }
       );
+    }
 
       // console.log(`Upload response for ${selectedReport}:`, response.data);
       // toast.success("File uploaded ");
@@ -188,6 +185,8 @@ const AdminReportUploadPortal = () => {
       setMultiLoading(false);
     }
   };
+
+  // console.log(error)
 
   // Filter reports based on the search term
   const filterReports = (reports, searchTerm) => {
@@ -437,6 +436,7 @@ const AdminReportUploadPortal = () => {
               </div>
               <div className="max-h-60 overflow-y-auto">
                 {filterReports(labList, labSearchTerm).map((report) => (
+                  
                   <div
                     key={report}
                     className="flex items-center py-2 hover:bg-gray-50 rounded-md transition-colors duration-150"
@@ -444,8 +444,12 @@ const AdminReportUploadPortal = () => {
                     <input
                       type="checkbox"
                       id={report}
-                      checked={selectedReport===report}
-                      onChange={() => handleReportToggle(report)}
+                      checked={selectedReport[report] || false}
+                      onChange={() => {handleReportToggle(report)
+                                      setSelectedReportType("Lab Report")
+                                      setCurrentReportName(report)}
+
+                      }
                       className="form-checkbox h-5 w-5 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
                     />
                     <label
@@ -454,7 +458,7 @@ const AdminReportUploadPortal = () => {
                     >
                       {report}
                     </label>
-                    {selectedReport === report&& (
+                    {selectedReport[report]&& (
                       <div>
                         <input
                           type="file"
@@ -464,7 +468,7 @@ const AdminReportUploadPortal = () => {
                         />
                         {file && (
                           <p className="text-sm text-gray-600 mt-2">
-                            Selected file: {file.name}
+                            {/* Selected file: {file.name} */}
                           </p>
                         )}
                       </div>
@@ -515,8 +519,11 @@ const AdminReportUploadPortal = () => {
                       <input
                         type="checkbox"
                         id={report}
-                        checked={selectedReport === report}
-                        onChange={() => handleReportToggle(report)}
+                        checked={selectedReport[report] || false}
+                        onChange={() => {handleReportToggle(report)
+                          setSelectedReportType("Diagnostic Report")
+                          setCurrentReportName(report)}
+                        }
                         className="form-checkbox h-5 w-5 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
                       />
                       <label
@@ -525,7 +532,7 @@ const AdminReportUploadPortal = () => {
                       >
                         {report}
                       </label>
-                      {selectedReport === report && (
+                      {selectedReport[report] && (
                         <div>
                           <input
                             type="file"
@@ -535,7 +542,7 @@ const AdminReportUploadPortal = () => {
                           />
                           {file && (
                             <p className="text-sm text-gray-600 mt-2">
-                              Selected file: {file.name}
+                              {/* Selected file: {file.name} */}
                             </p>
                           )}
                         </div>

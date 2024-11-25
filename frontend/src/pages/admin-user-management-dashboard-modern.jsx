@@ -116,16 +116,17 @@ const AdminUserManagementDashboard = () => {
 
   const handleSubmit = async () => {
     if (!file) {
-      alert("Please select a file to upload");
+
+      alert('Please select a file to upload');
       return;
     }
-
+  
     const formData = new FormData();
-    formData.append("csvFile", file);
-    console.log(file);
-    console.log("ye le", formData);
-
-    try {
+    formData.append('csvFile', file);
+    // console.log(file)
+    // console.log("ye le",formData)
+  
+   try {
       const response = await axios.post(
         `${url}/api/v1/auth/bulk-upload`,
         formData,
@@ -142,11 +143,15 @@ const AdminUserManagementDashboard = () => {
         toast.error("Failed to upload CSV file");
       }
     } catch (error) {
-      console.error("Error uploading CSV file:", error);
+
+      console.error('Error uploading CSV file:', error);
       if (error.response) {
+        // console.log("error",error.response.data)
         toast.error("Faild to upload csv file");
       } else {
-        toast.error("Faild to upload csv file");
+        
+         toast.error("Faild to upload csv file");
+
       }
     }
   };
@@ -324,7 +329,7 @@ const AdminUserManagementDashboard = () => {
             </button>
           </div>
 
-          {/* csv */}
+
 
           <div>
             <h2 className="text-2xl font-bold text-gray-800 mb-6">

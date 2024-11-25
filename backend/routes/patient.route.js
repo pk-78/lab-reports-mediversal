@@ -1,7 +1,11 @@
 // routes/patient.route.js
 import express from "express";
 import {
+
+  downloadFile,
+
   bulkUploadPatients,
+
   getAllPatients,
   getPatientById,
   getPatientReports,
@@ -48,7 +52,11 @@ patientRoute.post(
 
 patientRoute.get("/reports/:id", getPatientReports);
 patientRoute.post('/getUHIDsByNumber', getUHIDsByNumber);
+
+patientRoute.get('/download',downloadFile)
+
 patientRoute.post("/bulk-upload", upload.single("csvFile"), bulkUploadPatients);
+
 
 
 

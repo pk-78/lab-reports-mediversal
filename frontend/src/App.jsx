@@ -10,6 +10,7 @@ import AdminUserManagementDashboard from "./pages/admin-user-management-dashboar
 import AdminLoginPage from "./pages/admin-login";
 import PostLoginUHIDSelection from "./pages/post-login-uhid-selection";
 import PrivateRoute from "./PrivateRoute";
+import LoginPrivateRoute from "./ProtectedRoute";
 
 
 function App() {
@@ -22,8 +23,14 @@ function App() {
           <Route path="/admin-login" element={<AdminLoginPage />} />
           <Route path="/otp-verify" element={<OTPVerificationPage />} />
           <Route path="/post-uhid-selection" element={<PostLoginUHIDSelection />} />
-          <Route path="/dashboard/:id" element={<PatientDashboard />} />
-
+          <Route
+          path="/dashboard/:id"
+          element={
+            <LoginPrivateRoute>
+              <PatientDashboard />
+            </LoginPrivateRoute>
+          }
+        />
           {/* Secure the report upload route for users with the "Uploader" role */}
           <Route
             path="/reportUpload"
