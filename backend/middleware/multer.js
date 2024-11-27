@@ -1,6 +1,6 @@
+import fs from "fs";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 
 // Ensure 'reports' folder exists
 const ensureFolder = (folder) => {
@@ -51,15 +51,16 @@ const fileFilter = (req, file, cb) => {
 const singleUpload  = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 },
-}).array("reportFile", 3); // Allows up to 3 files
+  limits: { fileSize: 100 * 1024 * 1024 },
+}).array("reportFile", 10); // Allows up to 3 files
 
 
 // Configure upload for multiple files
 const multipleUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 10MB
+  limits: { fileSize: 100 * 1024 * 1024 }, // Limit file size to 10MB
 }).array("reports", 50);
 
-export { singleUpload, multipleUpload };
+export { multipleUpload, singleUpload };
+
