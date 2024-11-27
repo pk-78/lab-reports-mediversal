@@ -24,6 +24,8 @@ app.use(
     origin: "*", // Allow all origins for testing
   })
 );
+app.use(cors({ origin: 'https://mediversaldiagnostics.in' }));
+
 
 
 app.get("/", (req, res) => {
