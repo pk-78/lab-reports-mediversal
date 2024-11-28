@@ -34,9 +34,7 @@ const AdminUserManagementDashboard = () => {
         const newUserWithId = { ...newUser };
 
         const response = await axios.post(
-          `${url}/api/v1/admin/admin-users,
-          newUserWithId`
-        );
+          `${url}/api/v1/admin/admin-users`,
 
         setUsers([...users, newUserWithId]);
         toast.success("User created successfully!");
