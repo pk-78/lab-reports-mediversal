@@ -108,7 +108,7 @@ export const verifyOtp = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    console.log("Generated Token:", token); // Debugging: Check token generation
+    // console.log("Generated Token:", token); // Debugging: Check token generation
 
     // Clear OTP and expiration for all patients with the same number
     await Patient.updateMany(
@@ -417,12 +417,12 @@ export const getUHIDsByNumber = async (req, res) => {
 
 export const downloadFile = async (req, res) => {
   const fileUrl = req.query.url;
-  console.log("Received file URL:", fileUrl); // Log the file URL for debugging
+  // console.log("Received file URL:", fileUrl); 
 
   try {
     const response = await axios.get(fileUrl, { responseType: "stream" });
 
-    console.log("Response headers:", response.headers); // Log the response headers
+    // console.log("Response headers:", response.headers);
 
     res.setHeader("Content-Type", response.headers["content-type"]);
     res.setHeader(

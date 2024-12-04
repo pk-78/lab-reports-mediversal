@@ -10,7 +10,7 @@ const AdminUserManagementDashboard = () => {
     userId: "",
     password: "",
     role: "Uploader",
-    isActive: true,
+    // isActive: true,
   });
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
@@ -32,16 +32,33 @@ const AdminUserManagementDashboard = () => {
     } else {
       try {
         const newUserWithId = { ...newUser };
+        // console.log(newUserWithId);
 
         const response = await axios.post(
           `${url}/api/v1/admin/admin-users`,
 
-        setUsers([...users, newUserWithId]);
-        toast.success("User created successfully!");
-        setSuccessMessage("User created successfully!");
+          newUserWithId
+        );
+          // console.log(response);
+        if (response.status === 201) {
+          setUsers([...users, newUserWithId]);
+          toast.success("User created successfully!");
+          // setSuccessMessage("User created successfully!");
+          // setShowSuccess(true);
+          // setTimeout(() => setShowSuccess(false), 3000);
+        }
+
+
+       
+
       } catch (error) {
-        console.error("Error creating user:", error);
-        setSuccessMessage("Error creating user. Please try again.");
+        if (error.response.status === 400) {
+          toast.error("User already exixt");
+        } else {
+          // console.error("Error creating user:", error);
+          toast.error("Error creating user. Please try again.");
+          // setSuccessMessage("Error creating user. Please try again.");
+        }
       }
     }
 
@@ -53,8 +70,6 @@ const AdminUserManagementDashboard = () => {
       isActive: true,
     });
     setEditingUser(null);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
   };
 
   useEffect(() => {
@@ -104,6 +119,7 @@ const AdminUserManagementDashboard = () => {
 
   /// csv
   const [file, setFile] = useState(null);
+  const [isloading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event) => {
     const selectedFile = event.target.files[0];
@@ -114,17 +130,20 @@ const AdminUserManagementDashboard = () => {
 
   const handleSubmit = async () => {
     if (!file) {
-
-      alert('Please select a file to upload');
+      alert("Please select a file to upload");
       return;
     }
-  
+
     const formData = new FormData();
-    formData.append('csvFile', file);
+    formData.append("csvFile", file);
     // console.log(file)
     // console.log("ye le",formData)
-  
-   try {
+
+    setIsLoading(true);
+
+    console.log(file);
+
+    try {
       const response = await axios.post(
         `${url}/api/v1/auth/bulk-upload`,
         formData,
@@ -141,17 +160,15 @@ const AdminUserManagementDashboard = () => {
         toast.error("Failed to upload CSV file");
       }
     } catch (error) {
-
-      console.error('Error uploading CSV file:', error);
+      console.error("Error uploading CSV file:", error);
       if (error.response) {
         // console.log("error",error.response.data)
         toast.error("Faild to upload csv file");
       } else {
-        
-         toast.error("Faild to upload csv file");
-
+        toast.error("Faild to upload csv file");
       }
     }
+    setIsLoading(false);
   };
 
   //csv
@@ -312,6 +329,11 @@ const AdminUserManagementDashboard = () => {
                 >
                   Choose CSV File
                 </label>
+                {file && (
+                  <div className="mt-2 text-sm text-teal-600">
+                    Selected File: {file.name}
+                  </div>
+                )}
               </div>
               <p className="mt-2 text-sm text-teal-600">
                 Upload a CSV file with columns: Name, UHID, Mobile Number
@@ -323,11 +345,9 @@ const AdminUserManagementDashboard = () => {
               className="bg-teal-600  px-4 py-2 rounded hover:bg-teal-700 text-white"
             >
               {/* <FileText className="mr-2 h-5 w-5" /> */}
-              Submit Bulk Upload
+              {isloading ? "Uploading..." : "Submit Bulk Upload"}
             </button>
           </div>
-
-
 
           <div>
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
