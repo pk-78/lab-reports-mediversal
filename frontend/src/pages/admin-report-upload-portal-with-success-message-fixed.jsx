@@ -103,30 +103,11 @@ const AdminReportUploadPortal = () => {
 
   const handleFileChange = (e, reportName, reportType) => {
     const selectedFile = e.target.files[0]; // Get the first selected file
-    console.log(reportName);
-    console.log(reportType);
+    // console.log(reportName);
+    // console.log(reportType);
 
     if (selectedFile) {
-      // console.log(selectedReportType)
-      // console.log("ye leeeeee",currentReportName)
-      // const reader = new FileReader();
-
-      // if (selectedFile.type === "application/pdf") {
-      //   // For PDF files
-      //   reader.onload = () => {
-      //     setPreview(reader.result); // Set the file URL
-      //   };
-      //   reader.readAsDataURL(selectedFile); // Read PDF as Data URL
-      // } else if (selectedFile.type.startsWith("image/")) {
-      //   // For Image files
-      //   reader.onload = () => {
-      //     setPreview(reader.result); // Set the file URL
-      //   };
-      //   reader.readAsDataURL(selectedFile); // Read Image as Data URL
-      // } else {
-      //   setPreview(null);
-      //   alert("Unsupported file type. Please upload an image or a PDF.");
-      // }
+     
 
       setSingleFileArray((prevData) => {
         // Check if the file for the current report name already exists
@@ -153,47 +134,9 @@ const AdminReportUploadPortal = () => {
       [reportName]: true,
     }));
 
-    console.log("ye hai report", singleFileArray);
+    // console.log("ye hai report", singleFileArray);
   };
-  // const handleFileChange = (e) => {
-  //   const selectedFile = e.target.files[0];
-  //   setFile(selectedFile); // Set the selected file
-  // };
-
-  // async function compressPDF(file) {
-  //   const fileBuffer = await file.arrayBuffer();
-  //   const pdfDoc = await PDFDocument.load(fileBuffer);
-
-  //   // Compress the PDF using a lower quality setting (e.g., subset fonts, reduce image sizes)
-  //   const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
-
-  //   return new File([pdfBytes], file.name, { type: "application/pdf" });
-  // }
-
-  // async function compressImage(file) {
-  //   const options = {
-  //     maxSizeMB: 1, // Max size in MB
-  //     maxWidthOrHeight: 1300, // Set the max width or height
-  //     useWebWorker: true,
-  //   };
-
-  //   try {
-  //     // Compress the file
-  //     const compressedBlob = await imageCompression(file, options);
-
-  //     // Create a new File object to ensure the type is preserved
-  //     const compressedFile = new File(
-  //       [compressedBlob], // File content
-  //       file.name, // Retain the original file name
-  //       { type: file.type } // Retain the original file type
-  //     );
-
-  //     return compressedFile;
-  //   } catch (error) {
-  //     console.error("Error compressing the image:", error);
-  //     return null;
-  //   }
-  // }
+  
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -214,23 +157,7 @@ const AdminReportUploadPortal = () => {
       for (let i = 0; i < singleFileArray.length; i++) {
         const fileData = singleFileArray[i];
 
-        // let compressedFile;
-        // if (fileData.reportFile.type.startsWith("image/")) {
-        //   console.log(
-        //     "Before file size in kb",
-        //     fileData.reportFile.size / 1024
-        //   );
-        //   compressedFile = await compressImage(fileData.reportFile);
-        //   console.log("Before file size in kb", compressedFile.size / 1024);
-        // } else if (fileData.reportFile.type === "application/pdf") {
-        //   console.log(
-        //     "Before file size in kb",
-        //     fileData.reportFile.size / 1024
-        //   );
-        //   compressedFile = await compressPDF(fileData.reportFile);
-
-        //   console.log("Before file size in kb", compressedFile.size / 1024);
-        // }
+      
 
         const formData = new FormData();
         formData.append("reportFile", fileData.reportFile);
@@ -238,13 +165,6 @@ const AdminReportUploadPortal = () => {
         formData.append("reportType", fileData.reportType);
         formData.append("reportName", fileData.reportName);
 
-        // fileArray.push(fileData.reportName);
-        // setUploadedReports((prevData) => [
-        //   ...prevData, // Spread previous data (this keeps the old reports)
-        //   fileData.reportName, // Add the new item to the array
-        // ]);
-
-        // console.log("single", file);
 
         const response = await axios.post(
           `${url}/api/v1/auth/upload-report`,
@@ -287,9 +207,7 @@ const AdminReportUploadPortal = () => {
   };
 
   const handleSingleUpload = async (e, file, report, type) => {
-    // console.log("file", file);
-    // console.log("Report", report);
-    // console.log("Type", type);
+   
     e.preventDefault();
 
     if (!file) {
@@ -484,7 +402,7 @@ const AdminReportUploadPortal = () => {
       }
     }
 
-    console.log("ye hai report", singleFileArray);
+    // console.log("ye hai report", singleFileArray);
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
