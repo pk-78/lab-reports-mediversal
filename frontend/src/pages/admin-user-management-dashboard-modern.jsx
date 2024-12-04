@@ -36,6 +36,7 @@ const AdminUserManagementDashboard = () => {
 
         const response = await axios.post(
           `${url}/api/v1/admin/admin-users`,
+
           newUserWithId
         );
           // console.log(response);
@@ -46,6 +47,10 @@ const AdminUserManagementDashboard = () => {
           // setShowSuccess(true);
           // setTimeout(() => setShowSuccess(false), 3000);
         }
+
+
+       
+
       } catch (error) {
         if (error.response.status === 400) {
           toast.error("User already exixt");

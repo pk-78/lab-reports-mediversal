@@ -1,13 +1,12 @@
+import axios from "axios";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import connectDB from "./db/db.js";
-import patientRoute from "./routes/patient.route.js";
-import adminRoute from "./routes/admin.route.js";
-import axios from "axios";
-import path from "path";
+import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
+import connectDB from "./db/db.js";
+import adminRoute from "./routes/admin.route.js";
+import patientRoute from "./routes/patient.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,9 +26,13 @@ app.use(
 );
 
 
+
+
 app.get("/", (req, res) => {
   return res.send("hello");
 });
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/api/v1/auth", patientRoute);
 app.use("/api/v1/admin", adminRoute);
 
