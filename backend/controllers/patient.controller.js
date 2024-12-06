@@ -10,6 +10,7 @@ import axios from "axios";
 
 import csvParser from "csv-parser";
 import fs from "fs";
+import AdminUser from "../models/admin.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -266,7 +267,7 @@ export const registerPatient = async (req, res) => {
 //repoet protuios
 //upload report
 export const uploadReport = async (req, res) => {
-  const { uhidOrNumber, reportType, reportName } = req.body;
+  const { uhidOrNumber, reportType, reportName,uploaderName } = req.body;
 
   try {
     const patient = await Patient.findOne({
@@ -289,6 +290,7 @@ export const uploadReport = async (req, res) => {
         }`;
 
         const report = new Report({
+          uploaderName,
           reportType,
           reportName,
           reportLink, // Save file URL in MongoDB
@@ -490,52 +492,45 @@ export const bulkUploadPatients = async (req, res) => {
     });
 };
 
-export const getDailyUploadCount = async (req, res) => {
-  const { uploaderId } = req.params;
 
+
+
+
+
+export const fetchReportsWithCount = async (req, res) => {
   try {
-    // Check if the uploader exists
-    const uploader = await Patient.findById(uploaderId);
-    if (!uploader) {
-      return res.status(404).json({ message: "Uploader not found" });
-    }
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
-    // Get today's start and end times
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0); // Start of the day
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999); // End of the day
+      // Fetch reports uploaded today and group by uploaderName
+      const reports = await Report.aggregate([
+          {
+              // Match reports that were created today
+              $match: {
+                  createdAt: { $gte: startOfDay, $lte: endOfDay }
+              }
+          },
+          {
+              // Group by uploaderName and count the reports
+              $group: {
+                  _id: "$uploaderName", // Group by uploader's name
+                  count: { $sum: 1 }     // Count the number of reports
+              }
+          },
+          {
+              // Optionally, sort the results by uploaderName (optional)
+              $sort: { "_id": 1 }
+          }
+      ]);
 
-    // Query reports uploaded by this user within the day
-    const uploadCount = await Report.countDocuments({
-      uploadedBy: uploaderId,
-      uploadedAt: { $gte: startOfDay, $lte: endOfDay },
-    });
-
-    res.status(200).json({
-      message: "Daily upload count fetched successfully",
-      uploaderId,
-      uploadCount,
-    });
+      // Return the result as JSON with uploaderName and upload count
+      res.json(reports);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching upload count", error: error.message });
-  }
-};
-export const getTotalReportsCount = async (req, res) => {
-  try {
-    // Count all documents in the Report collection
-    const totalReports = await Report.countDocuments();
-
-    res.status(200).json({
-      message: "Total report count fetched successfully",
-      totalReports,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching total report count", error: error.message });
+      console.error("Error fetching reports:", error);
+      res.status(500).send("Error fetching reports");
   }
 
 };
+
