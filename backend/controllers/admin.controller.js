@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 // Create new Admin User
 export const createAdminUser = async (req, res) => {
-  const { name, userId, password, role } = req.body;
+  const { name, userId, password, role, isActive } = req.body;
 
   try {
     // Check if user already exists

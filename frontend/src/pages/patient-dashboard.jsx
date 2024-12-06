@@ -35,7 +35,7 @@ const PatientDashboard = ({
   const [patientdata, setPatientData] = useState("");
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState();
-  const [downloading, setDownloading]=useState(false)
+ 
   const { id } = useParams();
   const [patientReportData, setPatientReportData] = useState();
   const navigate = useNavigate();
@@ -101,6 +101,7 @@ const PatientDashboard = ({
     // const formattedReportLink = `${reportLink.replace(/\\/g, "/")}`; // Normalize the link
     // console.log("ye le", reportLink);
     // console.log('ye le', formattedReportLink)
+    const [downloading, setDownloading]=useState(false)
 
     const [datePart, timePart] = date ? date.split("T") : ["N/A", "N/A"];
     const time = timePart?.split(".")[0] || "N/A"; // Handle missing time part
@@ -112,6 +113,32 @@ const PatientDashboard = ({
     } else {
       multiFileName = "Name Not Found"; // Or any placeholder you prefer
     }
+    const downloadReport = async (fileUrl,multiFileName) => {
+      setDownloading(true);
+      try {
+        // Make a request to your backend to fetch the file
+        const response = await axios.get(`${url}/api/v1/auth/download`, {
+          params: { url: fileUrl }, // Pass the file URL as a query parameter
+          responseType: 'blob', // Important: Set the response type to blob
+        });
+    
+        // Convert the response into a blob URL
+        const blob = response.data;
+        const blobUrl = URL.createObjectURL(blob);
+    
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = multiFileName; // Use the original file name
+        link.click();
+    
+        // Clean up the object URL
+        URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error('Error downloading file:', error);
+      }
+      setDownloading(false)
+    };
 
     return (
       <div className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow">
@@ -143,7 +170,7 @@ const PatientDashboard = ({
             onClick={() => downloadReport(reportLink,multiFileName)}
             className="bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
           >
-            Download
+            {downloading? "Downloading...":"Download"}
           </button>
         </div>
         {viewData && (
