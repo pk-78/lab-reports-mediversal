@@ -29,23 +29,36 @@ const sampleDiagnosticsReports = [
 const PatientDashboard = ({
   labReports = sampleLabReports,
   diagnosticsReports = sampleDiagnosticsReports,
+  role = "",
+  uniqueId,
 }) => {
+  const { id } = useParams();
   const [activeTab, setActiveTab] = useState("lab");
   const [sortOrder, setSortOrder] = useState("desc");
   const [patientdata, setPatientData] = useState("");
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState();
- 
-  const { id } = useParams();
+  const [toSendId, setToSendId] = useState(role === "admin" ? uniqueId : id);
+
   const [patientReportData, setPatientReportData] = useState();
   const navigate = useNavigate();
   const [viewData, setViewData] = useState(false);
+  console.log(uniqueId);
+  console.log("ye h role", role);
+  // console.log(`${url}/api/v1/auth/patients/${role==="admin"?uniqueId:id}`)
+  // if (role === "admin") {
+  //   setToSendId(uniqueId);
+  // } else {
+  //   setToSendId(id);
+  // }
 
   useEffect(() => {
     const fetchPatientData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${url}/api/v1/auth/patients/${id}`);
+        const response = await axios.get(
+          `${url}/api/v1/auth/patients/${toSendId}`
+        );
         // console.log(response);
         setPatientData(response.data);
       } catch (err) {
@@ -61,7 +74,9 @@ const PatientDashboard = ({
       setLoading(true);
 
       try {
-        const response = await axios.get(`${url}/api/v1/auth/reports/${id}`);
+        const response = await axios.get(
+          `${url}/api/v1/auth/reports/${toSendId}`
+        );
         // console.log(response.data.reports);
         setPatientReportData(response.data.reports);
       } catch (err) {
@@ -74,7 +89,7 @@ const PatientDashboard = ({
 
     fetchPatientReport();
     fetchPatientData();
-  }, [id]);
+  }, []);
 
   const TabButton = ({ id, label, comingSoon = false }) => (
     <button
@@ -101,7 +116,7 @@ const PatientDashboard = ({
     // const formattedReportLink = `${reportLink.replace(/\\/g, "/")}`; // Normalize the link
     // console.log("ye le", reportLink);
     // console.log('ye le', formattedReportLink)
-    const [downloading, setDownloading]=useState(false)
+    const [downloading, setDownloading] = useState(false);
 
     const [datePart, timePart] = date ? date.split("T") : ["N/A", "N/A"];
     const time = timePart?.split(".")[0] || "N/A"; // Handle missing time part
@@ -113,31 +128,31 @@ const PatientDashboard = ({
     } else {
       multiFileName = "Name Not Found"; // Or any placeholder you prefer
     }
-    const downloadReport = async (fileUrl,multiFileName) => {
+    const downloadReport = async (fileUrl, multiFileName) => {
       setDownloading(true);
       try {
         // Make a request to your backend to fetch the file
         const response = await axios.get(`${url}/api/v1/auth/download`, {
           params: { url: fileUrl }, // Pass the file URL as a query parameter
-          responseType: 'blob', // Important: Set the response type to blob
+          responseType: "blob", // Important: Set the response type to blob
         });
-    
+
         // Convert the response into a blob URL
         const blob = response.data;
         const blobUrl = URL.createObjectURL(blob);
-    
+
         // Create a download link
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = blobUrl;
         link.download = multiFileName; // Use the original file name
         link.click();
-    
+
         // Clean up the object URL
         URL.revokeObjectURL(blobUrl);
       } catch (error) {
-        console.error('Error downloading file:', error);
+        console.error("Error downloading file:", error);
       }
-      setDownloading(false)
+      setDownloading(false);
     };
 
     return (
@@ -167,10 +182,10 @@ const PatientDashboard = ({
             View
           </button>
           <button
-            onClick={() => downloadReport(reportLink,multiFileName)}
+            onClick={() => downloadReport(reportLink, multiFileName)}
             className="bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
           >
-            {downloading? "Downloading...":"Download"}
+            {downloading ? "Downloading..." : "Download"}
           </button>
         </div>
         {viewData && (
@@ -186,38 +201,32 @@ const PatientDashboard = ({
     );
   };
 
-
-
-
-  const downloadReport = async (fileUrl,multiFileName) => {
+  const downloadReport = async (fileUrl, multiFileName) => {
     setDownloading(true);
     try {
       // Make a request to your backend to fetch the file
       const response = await axios.get(`${url}/api/v1/auth/download`, {
         params: { url: fileUrl }, // Pass the file URL as a query parameter
-        responseType: 'blob', // Important: Set the response type to blob
+        responseType: "blob", // Important: Set the response type to blob
       });
-  
+
       // Convert the response into a blob URL
       const blob = response.data;
       const blobUrl = URL.createObjectURL(blob);
-  
+
       // Create a download link
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = blobUrl;
       link.download = multiFileName; // Use the original file name
       link.click();
-  
+
       // Clean up the object URL
       URL.revokeObjectURL(blobUrl);
     } catch (error) {
-      console.error('Error downloading file:', error);
+      console.error("Error downloading file:", error);
     }
-    setDownloading(false)
+    setDownloading(false);
   };
-  
- 
-  
 
   const sortReports = (reports) => {
     return [...reports].sort((a, b) => {
@@ -238,18 +247,24 @@ const PatientDashboard = ({
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-teal-600 text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Patient Portal</h1>
+          <h1 className="text-2xl font-bold">
+            {role === "admin" ? "View Patient Reports" : "Patient Portal"}
+          </h1>
           <div className="flex items-center space-x-4">
-            <span>{patientdata.name}</span>
-            <button
-              className="bg-teal-700 px-3 py-1 rounded hover:bg-teal-800"
-              onClick={() => {
-                localStorage.removeItem("patientData");
-                navigate("/");
-              }}
-            >
-              Logout
-            </button>
+            
+            {role === "admin" ? (
+              <div className="mb-4 mr-10"></div>
+            ) : (
+              <button
+                className="bg-teal-700 px-3 py-1 rounded hover:bg-teal-800"
+                onClick={() => {
+                  localStorage.removeItem("patientData");
+                  navigate("/");
+                }}
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </nav>

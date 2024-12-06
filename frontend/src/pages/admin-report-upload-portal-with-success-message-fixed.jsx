@@ -405,10 +405,10 @@ const AdminReportUploadPortal = () => {
     // console.log("ye hai report", singleFileArray);
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
+        <div className="bg-white w-full h-screen rounded-lg mx-52  shadow-lg p-6">
           <div className="flex justify-between">
             <h2 className="text-2xl font-bold text-teal-800 mb-2">
-              Confirm Uploaded Reports
+             {previewName}
             </h2>
             <div
               className="text-black font-bold hover:cursor-pointer"
@@ -418,18 +418,19 @@ const AdminReportUploadPortal = () => {
             </div>
           </div>
 
-          <div className="flex gap-4">
-            <div className="flex-1 border border-gray-300 rounded-lg p-4 flex items-center justify-center text-gray-500 text-sm">
+          <div className="flex w-[900px] gap-4">
+          <div className="flex-1 rounded-lg p-4 max-w-lg  items-center justify-center font-bold text-lg text-gray-500 ">
               <p className="text-teal-600">{previewName}</p>
             </div>
-            <div className="flex-1 border border-gray-300 rounded-lg p-4 flex items-center justify-center text-gray-500 text-sm">
+            
+            <div className="flex-1 border border-gray-300 rounded-lg p-4 h-96  items-center justify-center text-gray-500 text-sm">
               {showFile && (
                 <div>
                   {file?.type === "application/pdf" ? (
                     <iframe
                       src={preview}
                       title="PDF Preview"
-                      className="w-full h-64 border border-gray-300 rounded-lg"
+                      className="w-full h-[600px] border border-gray-300 rounded-lg"
                     ></iframe>
                   ) : file?.type.startsWith("image/") ? (
                     <img
@@ -445,10 +446,11 @@ const AdminReportUploadPortal = () => {
             </div>
           </div>
 
-          <div className="flex justify-end gap-4 mt-6">
+          <div className="flex justify-between gap-4 mt-1 ">
             {/* <button onClick={() => setShowFile(false)} className="border-teal-700 border-2 text-teal-800 hover:bg-teal-50 px-2 py-1 rounded">
               Close
             </button> */}
+            
 
             <button
               onClick={() =>

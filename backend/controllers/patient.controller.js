@@ -155,7 +155,7 @@ export const verifyOtpByUhid = async (req, res) => {
       expiresIn: "1h",
     }
   );
-  console.log("ye le", token);
+  // console.log("ye le", token);
 
   patient.otp = undefined;
   patient.otpExpire = undefined;

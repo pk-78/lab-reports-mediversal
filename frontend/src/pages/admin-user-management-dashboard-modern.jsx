@@ -39,7 +39,7 @@ const AdminUserManagementDashboard = () => {
 
           newUserWithId
         );
-          // console.log(response);
+        // console.log(response);
         if (response.status === 201) {
           setUsers([...users, newUserWithId]);
           toast.success("User created successfully!");
@@ -47,10 +47,6 @@ const AdminUserManagementDashboard = () => {
           // setShowSuccess(true);
           // setTimeout(() => setShowSuccess(false), 3000);
         }
-
-
-       
-
       } catch (error) {
         if (error.response.status === 400) {
           toast.error("User already exixt");
@@ -193,23 +189,24 @@ const AdminUserManagementDashboard = () => {
   );
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 sm:p-6 lg:p-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 ">
       <button
         onClick={() => {
           localStorage.removeItem("userData");
           localStorage.removeItem("role");
           navigate("/");
         }}
-        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none  focus:ring-teal-500"
+        className=" absolute top-2 right-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-700 hover:bg-teal-800 focus:outline-none  focus:ring-teal-500"
       >
         Logout
       </button>
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-8">
-          <h1 className="text-4xl font-extrabold text-white tracking-wide">
+      <div className=" mx-auto bg-white shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-3">
+          <h1 className="text-2xl font-bold text-white tracking-wide">
             Admin User Management
           </h1>
         </div>
+
         <div className="p-8">
           <div className="bg-gray-50 rounded-xl p-6 mb-8 shadow-inner">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -309,7 +306,7 @@ const AdminUserManagementDashboard = () => {
           </div>
 
           {/* bulk upload */}
-          <div className="max-w-4xl p-6 bg-teal-50 rounded-lg shadow-lg">
+          <div className=" p-6 bg-teal-50 rounded-lg shadow-lg">
             <h1 className="text-3xl font-bold text-teal-800 mb-6">
               Bulk Upload Patient Data
             </h1>
@@ -349,8 +346,14 @@ const AdminUserManagementDashboard = () => {
             </button>
           </div>
 
+          <button
+            onClick={()=>{navigate("/adminViewReport")}}
+          className="bg-teal-600 rounded text-white m-2 text-center w-full h-12">
+            Admin View Report
+          </button>
+
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            <h2 className="text-2xl mt-2 font-bold text-gray-800 mb-6">
               Existing Admin Users
             </h2>
             <div className="bg-white rounded-xl shadow-md overflow-hidden">
