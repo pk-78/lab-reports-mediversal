@@ -17,6 +17,8 @@ import {
   uploadReport,
   verifyOtp,
   verifyOtpByUhid,
+  getDailyUploadCount,
+  getTotalReportsCount,
 } from "../controllers/patient.controller.js";
 import { multipleUpload, singleUpload } from "../middleware/multer.js";
 import { upload } from "../middleware/csvmulte.js";
@@ -56,6 +58,8 @@ patientRoute.post('/getUHIDsByNumber', getUHIDsByNumber);
 patientRoute.get('/download',downloadFile)
 
 patientRoute.post("/bulk-upload", upload.single("csvFile"), bulkUploadPatients);
+patientRoute.get("/upload-count",getDailyUploadCount)
+patientRoute.get("/total-reports", getTotalReportsCount);
 
 
 

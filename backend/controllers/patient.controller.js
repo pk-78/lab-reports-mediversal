@@ -489,3 +489,52 @@ export const bulkUploadPatients = async (req, res) => {
         .json({ message: "Error reading CSV file", error: error.message });
     });
 };
+
+export const getDailyUploadCount = async (req, res) => {
+  const { uploaderId } = req.params;
+
+  try {
+    // Check if the uploader exists
+    const uploader = await Patient.findById(uploaderId);
+    if (!uploader) {
+      return res.status(404).json({ message: "Uploader not found" });
+    }
+
+    // Get today's start and end times
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Start of the day
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // End of the day
+
+    // Query reports uploaded by this user within the day
+    const uploadCount = await Report.countDocuments({
+      uploadedBy: uploaderId,
+      uploadedAt: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    res.status(200).json({
+      message: "Daily upload count fetched successfully",
+      uploaderId,
+      uploadCount,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching upload count", error: error.message });
+  }
+};
+export const getTotalReportsCount = async (req, res) => {
+  try {
+    // Count all documents in the Report collection
+    const totalReports = await Report.countDocuments();
+
+    res.status(200).json({
+      message: "Total report count fetched successfully",
+      totalReports,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching total report count", error: error.message });
+  }
+};
