@@ -16,6 +16,7 @@ export default function AdminViewReport() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [showReport, setShowReport] = useState(false);
+  const [totalReport, setTotalReport] = useState(null);
 
   const handlePatientSearch = (e) => {
     e.preventDefault();
@@ -120,6 +121,24 @@ export default function AdminViewReport() {
     };
 
     fetchPatientData();
+  }, []);
+
+  useEffect(() => {
+    const fetchDailyReport = async () => {
+      try {
+        const response = await axios.get(
+          `${url}/api/v1/auth/uploader-report-counts`
+        );
+
+        setTotalReport(response.data);
+        console.log(response.data);
+      } catch (err) {
+        setError(err.message);
+        toast.error("Error while fetching, please refresh");
+      }
+    };
+
+    fetchDailyReport();
   }, []);
 
   const allReports = [
@@ -285,7 +304,7 @@ export default function AdminViewReport() {
     return (
       <div className="mx-6">
         <div className=" my-4 text-2xl font-bold">User Upload</div>
-        <div className="flex gap-4 ">
+        {/* <div className="flex gap-4 ">
           <input
             type="text"
             placeholder="Search.."
@@ -294,55 +313,30 @@ export default function AdminViewReport() {
           <button className="bg-teal-600 text-white px-3 py-1 rounded">
             Search
           </button>
-        </div>
-        <div className="bg-gray-200">
-          <table className="min-w-full leading-normal mt-2 bg-gray-200">
-            <thead className="text-gray-600">
-              <tr>
-                <th className="px-2 py-3 w-1/6 border-b-2    text-left text-xs font-semibold text-black uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-5 py-3 w-1/6 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
-                  Role
-                </th>
-
-                <th className="px-5 py-3 w-1/6 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
-                  Department
-                </th>
-
-                <th className="px-5 py-3 w-1/6 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
-                  Total Uploads
-                </th>
-
-                <th className="px-5 py-3 w-2/6 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
-                  Actions
-                </th>
+        </div> */}
+        <div className="bg-gray-100 rounded-md h-screen p-5">
+          <table className="w-full border-collapse bg-white shadow-lg rounded-lg">
+            <thead>
+              <tr className="bg-teal-600 text-white text-sm uppercase font-semibold">
+                <th className="px-6 py-3 text-left">Name</th>
+                <th className="px-6 py-3 text-left">Role</th>
+                <th className="px-6 py-3 text-left">Total Uploads</th>
               </tr>
             </thead>
             <tbody>
-              {allReports.map((report) => (
-                <tr key={report._id}>
-                  {/* {console.log("ye le", course?.courseDepartment)} */}
-                  <td className="px-1 py-1 w-1/6 border-b   text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">
-                      {report?.name}
-                    </p>
+              {totalReport?.map((report) => (
+                <tr
+                  key={report._id}
+                  className="border-b hover:bg-gray-100 transition duration-200"
+                >
+                  <td className="px-6 py-4 text-sm text-gray-800">
+                    <p className="truncate">{report?._id}</p>
                   </td>
-                  <td className="px-5 py-3 w-1/6 border-b   text-sm text-left">
-                    <p className=" text-black whitespace-no-wrap">Lab</p>
+                  <td className="px-6 py-4 text-sm text-gray-800">
+                    Lab Technician
                   </td>
-
-                  <td className="px-5 py-3 w-1/6 border-b  text-black  text-sm text-left">
-                    <p className=" whitespace-no-wrap">Depart</p>
-                  </td>
-                  <td className="px-5 py-3 w-1/6 border-b   text-sm text-left">
-                    <div className="whitespace-no-wrap">50</div>
-                  </td>
-
-                  <td className="px-5 py-3  border-b    text-left gap-3 text-lg">
-                    <button className="flex gap-2 bg-white rounded-md px-2 text-sm">
-                      <IoEye className="mt-1" /> View Details
-                    </button>
+                  <td className="px-6 py-4 text-sm text-gray-800">
+                    {report?.count}
                   </td>
                 </tr>
               ))}
@@ -378,8 +372,10 @@ export default function AdminViewReport() {
             <div>View Patient Reports</div>
             <div>
               {" "}
-              <button 
-              onClick={()=>navigate("/adminUserManagement")} className="font-semibold text-lg bg-teal-700 px-3 rounded-md">
+              <button
+                onClick={() => navigate("/adminUserManagement")}
+                className="font-semibold text-lg bg-teal-700 px-3 rounded-md"
+              >
                 Back
               </button>
             </div>
@@ -393,12 +389,12 @@ export default function AdminViewReport() {
                 >
                   Patient Reports
                 </button>
-                <button
+                {/* <button
                   onClick={() => setCurrentPage("Reports Tracking")}
                   className="py-2 hover:bg-gray-200 w-full"
                 >
                   Reports Tracking
-                </button>
+                </button> */}
                 <button
                   onClick={() => setCurrentPage("User Uploads")}
                   className="py-2 hover:bg-gray-200 w-full"

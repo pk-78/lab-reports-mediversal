@@ -36,9 +36,10 @@ const AdminReportUploadPortal = () => {
   const [previewName, setPreviewName] = useState(null);
   let reportType;
 
+  const username = localStorage.getItem("userName");
   const navigate = useNavigate();
   const fileArray = [];
-
+  console.log(username);
   useEffect(() => {
     const fetchPatientData = async () => {
       setFetchLoading(true);
@@ -107,8 +108,6 @@ const AdminReportUploadPortal = () => {
     // console.log(reportType);
 
     if (selectedFile) {
-     
-
       setSingleFileArray((prevData) => {
         // Check if the file for the current report name already exists
         const updatedData = prevData.filter(
@@ -136,7 +135,6 @@ const AdminReportUploadPortal = () => {
 
     // console.log("ye hai report", singleFileArray);
   };
-  
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -157,14 +155,12 @@ const AdminReportUploadPortal = () => {
       for (let i = 0; i < singleFileArray.length; i++) {
         const fileData = singleFileArray[i];
 
-      
-
         const formData = new FormData();
         formData.append("reportFile", fileData.reportFile);
         formData.append("uhidOrNumber", selectedPatient.UHID);
         formData.append("reportType", fileData.reportType);
         formData.append("reportName", fileData.reportName);
-
+        formData.append("uploaderName", username);
 
         const response = await axios.post(
           `${url}/api/v1/auth/upload-report`,
@@ -207,7 +203,6 @@ const AdminReportUploadPortal = () => {
   };
 
   const handleSingleUpload = async (e, file, report, type) => {
-   
     e.preventDefault();
 
     if (!file) {
@@ -408,7 +403,7 @@ const AdminReportUploadPortal = () => {
         <div className="bg-white w-full h-screen rounded-lg mx-52  shadow-lg p-6">
           <div className="flex justify-between">
             <h2 className="text-2xl font-bold text-teal-800 mb-2">
-             {previewName}
+              {previewName}
             </h2>
             <div
               className="text-black font-bold hover:cursor-pointer"
@@ -419,10 +414,10 @@ const AdminReportUploadPortal = () => {
           </div>
 
           <div className="flex w-[900px] gap-4">
-          <div className="flex-1 rounded-lg p-4 max-w-lg  items-center justify-center font-bold text-lg text-gray-500 ">
+            <div className="flex-1 rounded-lg p-4 max-w-lg  items-center justify-center font-bold text-lg text-gray-500 ">
               <p className="text-teal-600">{previewName}</p>
             </div>
-            
+
             <div className="flex-1 border border-gray-300 rounded-lg p-4 h-96  items-center justify-center text-gray-500 text-sm">
               {showFile && (
                 <div>
@@ -450,7 +445,6 @@ const AdminReportUploadPortal = () => {
             {/* <button onClick={() => setShowFile(false)} className="border-teal-700 border-2 text-teal-800 hover:bg-teal-50 px-2 py-1 rounded">
               Close
             </button> */}
-            
 
             <button
               onClick={() =>
