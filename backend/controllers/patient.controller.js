@@ -10,7 +10,6 @@ import axios from "axios";
 
 import csvParser from "csv-parser";
 import fs from "fs";
-import AdminUser from "../models/admin.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -156,7 +155,7 @@ export const verifyOtpByUhid = async (req, res) => {
       expiresIn: "1h",
     }
   );
-  console.log("ye le", token);
+  // console.log("ye le", token);
 
   patient.otp = undefined;
   patient.otpExpire = undefined;
@@ -267,7 +266,7 @@ export const registerPatient = async (req, res) => {
 //repoet protuios
 //upload report
 export const uploadReport = async (req, res) => {
-  const { uhidOrNumber, reportType, reportName,uploaderName } = req.body;
+  const { uhidOrNumber, reportType, reportName,uploaderName} = req.body;
 
   try {
     const patient = await Patient.findOne({
@@ -492,11 +491,6 @@ export const bulkUploadPatients = async (req, res) => {
     });
 };
 
-
-
-
-
-
 export const fetchReportsWithCount = async (req, res) => {
   try {
       // Get today's date in YYYY-MM-DD format
@@ -533,4 +527,3 @@ export const fetchReportsWithCount = async (req, res) => {
   }
 
 };
-

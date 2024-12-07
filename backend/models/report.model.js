@@ -2,10 +2,13 @@ import mongoose from "mongoose";
 
 const reportSchema = new mongoose.Schema(
   {
+   
     uploaderName: {
       type: String,
-      required: true,
+
+     required: true,
     },
+
     reportType: {
       type: String,
       enum: ["Lab Report", "Diagnostic Report"],
@@ -1466,11 +1469,7 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    uploader: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "AdminUser",
-      required: true,
-    },
+ 
 
   },
   {
