@@ -378,7 +378,8 @@ export default function AdminViewReport() {
             <div>View Patient Reports</div>
             <div>
               {" "}
-              <button className="font-semibold text-lg bg-teal-700 px-3 rounded-md">
+              <button 
+              onClick={()=>navigate("/adminUserManagement")} className="font-semibold text-lg bg-teal-700 px-3 rounded-md">
                 Back
               </button>
             </div>
