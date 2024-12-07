@@ -11,7 +11,7 @@ import AdminLoginPage from "./pages/admin-login";
 import PostLoginUHIDSelection from "./pages/post-login-uhid-selection";
 import PrivateRoute from "./PrivateRoute";
 import LoginPrivateRoute from "./ProtectedRoute";
-
+import AdminViewReport from "./pages/admin-view-report";
 
 function App() {
   return (
@@ -22,20 +22,25 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin-login" element={<AdminLoginPage />} />
           <Route path="/otp-verify" element={<OTPVerificationPage />} />
-          <Route path="/post-uhid-selection" element={<PostLoginUHIDSelection />} />
           <Route
-          path="/dashboard/:id"
-          element={
-            <LoginPrivateRoute>
-              <PatientDashboard />
-            </LoginPrivateRoute>
-          }
-        />
+            path="/post-uhid-selection"
+            element={<PostLoginUHIDSelection />}
+          />
+          <Route
+            path="/dashboard/:id"
+            element={
+              <LoginPrivateRoute>
+                <PatientDashboard />
+              </LoginPrivateRoute>
+            }
+          />
           {/* Secure the report upload route for users with the "Uploader" role */}
           <Route
             path="/reportUpload"
             element={
-              <PrivateRoute requiredRole="Uploader">   {/* Uploader role required */}
+              <PrivateRoute requiredRole="Uploader">
+                {" "}
+                {/* Uploader role required */}
                 <AdminReportUploadPortal />
               </PrivateRoute>
             }
@@ -45,15 +50,31 @@ function App() {
           <Route
             path="/adminUserManagement"
             element={
-              <PrivateRoute requiredRole="Admin">    {/* Admin role required */}
+              <PrivateRoute requiredRole="Admin">
+                {" "}
+                {/* Admin role required */}
                 <AdminUserManagementDashboard />
               </PrivateRoute>
             }
           />
-           <Route
+
+          <Route
+            path="/adminViewReport"
+            element={
+              <PrivateRoute requiredRole="Admin">
+                {" "}
+                {/* Admin role required */}
+                <AdminViewReport />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
             path="/adminUserManagement"
             element={
-              <PrivateRoute requiredRole="SuperAdmin">    {/* Admin role required */}
+              <PrivateRoute requiredRole="SuperAdmin">
+                {" "}
+                {/* Admin role required */}
                 <AdminUserManagementDashboard />
               </PrivateRoute>
             }

@@ -41,7 +41,7 @@ const PhoneIcon = () => (
 const AdminLoginPage = () => {
   const [loginMethod, setLoginMethod] = useState("Uploader");
   const navigate = useNavigate();
-  const [loading, setLoading]= useState(false);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -54,17 +54,14 @@ const AdminLoginPage = () => {
     // console.log(data);
 
     // navigate("/adminUserManagement");
-    setLoading(true)
-    
+    setLoading(true);
+
     try {
-      const response = await axios.post(
-        `${url}/api/v1/admin/login`, 
-        data 
-      );
+      const response = await axios.post(`${url}/api/v1/admin/login`, data);
 
       if (response.status === 200) {
         // console.log("Login successfully");
-        
+
         const { adminUser, token } = response.data;
         // navigate("/adminUserManagement");
         // navigate("/otp-verify", {
@@ -72,9 +69,10 @@ const AdminLoginPage = () => {
         //     otpData: { number: data.number, responseData: response.data },
         //   },
         // });
-
+        console.log(adminUser);
         localStorage.setItem("role", adminUser.role);
         localStorage.setItem("userData", token);
+        localStorage.setItem("userName", adminUser.userId);
         // console.log(response);
         if (adminUser.role === loginMethod) {
           toast.success("login Successfull");
@@ -92,7 +90,7 @@ const AdminLoginPage = () => {
       // toast.error("Login Failed");
       toast.error(error.response.data.message);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   return (
@@ -165,7 +163,7 @@ const AdminLoginPage = () => {
               >
                 Admin
               </button>
-  {/*            
+              {/*            
               <button
                 className={`px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 ease-in-out ${
                   loginMethod === "Super Admin"
@@ -231,7 +229,14 @@ const AdminLoginPage = () => {
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
               >
-                {loading?<div className="flex justify-center items-center">  <div className="dotLoader"></div></div> :"Login"}
+                {loading ? (
+                  <div className="flex justify-center items-center">
+                    {" "}
+                    <div className="dotLoader"></div>
+                  </div>
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
           </form>
