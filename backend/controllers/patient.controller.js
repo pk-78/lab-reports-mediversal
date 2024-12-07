@@ -266,7 +266,7 @@ export const registerPatient = async (req, res) => {
 //repoet protuios
 //upload report
 export const uploadReport = async (req, res) => {
-  const { uhidOrNumber, reportType, reportName } = req.body;
+  const { uhidOrNumber, reportType, reportName,uploaderName} = req.body;
 
   try {
     const patient = await Patient.findOne({
@@ -289,6 +289,7 @@ export const uploadReport = async (req, res) => {
         }`;
 
         const report = new Report({
+          uploaderName,
           reportType,
           reportName,
           reportLink, // Save file URL in MongoDB
@@ -488,4 +489,41 @@ export const bulkUploadPatients = async (req, res) => {
         .status(500)
         .json({ message: "Error reading CSV file", error: error.message });
     });
+};
+
+export const fetchReportsWithCount = async (req, res) => {
+  try {
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+      // Fetch reports uploaded today and group by uploaderName
+      const reports = await Report.aggregate([
+          {
+              // Match reports that were created today
+              $match: {
+                  createdAt: { $gte: startOfDay, $lte: endOfDay }
+              }
+          },
+          {
+              // Group by uploaderName and count the reports
+              $group: {
+                  _id: "$uploaderName", // Group by uploader's name
+                  count: { $sum: 1 }     // Count the number of reports
+              }
+          },
+          {
+              // Optionally, sort the results by uploaderName (optional)
+              $sort: { "_id": 1 }
+          }
+      ]);
+
+      // Return the result as JSON with uploaderName and upload count
+      res.json(reports);
+  } catch (error) {
+      console.error("Error fetching reports:", error);
+      res.status(500).send("Error fetching reports");
+  }
+
 };
