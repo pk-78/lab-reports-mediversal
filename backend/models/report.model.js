@@ -2,6 +2,13 @@ import mongoose from "mongoose";
 
 const reportSchema = new mongoose.Schema(
   {
+   
+    uploaderName: {
+      type: String,
+
+     required: true,
+    },
+
     reportType: {
       type: String,
       enum: ["Lab Report", "Diagnostic Report"],
@@ -1462,6 +1469,8 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+ 
+
   },
   {
     timestamps: true,
