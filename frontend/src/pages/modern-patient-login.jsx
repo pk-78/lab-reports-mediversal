@@ -61,7 +61,7 @@ const LoginPage = () => {
 
       const response = await axios.post(
         `${url}/api/v1/auth/${
-          loginMethod === "uhid" ? "send-otp-uhid" : "sendOtp"
+          loginMethod === "uhid" ? "sendwayOtpuhid" : "sendwayOtp"
         }`,
         requestData
       );
@@ -95,7 +95,11 @@ const LoginPage = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 ">
       <div className=" w-full flex items-center justify-center p-4">
-        <img src="../../MediversalDetailLogo.png" alt="" className="h-32 w-80" />
+        <img
+          src="../../MediversalDetailLogo.png"
+          alt=""
+          className="h-32 w-80"
+        />
       </div>
       <div className=" w-full flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
