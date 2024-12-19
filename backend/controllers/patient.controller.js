@@ -24,7 +24,7 @@ const isValidPhoneNumber = (phoneNumber) => {
   const phoneRegex = /^\+[1-9]\d{1,14}$/; // E.164 format regex
   return phoneRegex.test(phoneNumber);
 };
-// Send OTP
+// Send OTP From twillio filhal k liye working stop hai iski
 export const sendOtp = async (req, res) => {
   try {
     const { number } = req.body;
@@ -82,6 +82,128 @@ export const sendOtp = async (req, res) => {
     });
   }
 };
+// send otp from way2mint  workin for now
+export const sendWay2mintOtp = async (req, res) => {
+  try {
+    const { number } = req.body;
+    // console.log("number", number);
+    // Validate phone number format
+    if (!isValidPhoneNumber(number)) {
+      return res.status(400).json({
+        message:
+          "Invalid phone number format. Please use international format (e.g., +1234567890).",
+      });
+    }
+
+    // Check if patient already exists or create a new entry
+    let patient = await Patient.findOne({ number });
+    if (!patient) {
+      console.log("Patient does not exist");
+      return res.status(400).json({ message: "Patient does not exist" });
+    }
+
+    // Generate OTP
+    const otp = otpGenerator.generate(4, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
+    });
+
+    // Set OTP expiration time (10 minutes from now)
+    const otpExpire = Date.now() + 10 * 60 * 1000;
+
+    // Save OTP and expiration to the patient document
+    patient.otp = otp;
+    patient.otpExpire = otpExpire;
+    await patient.save();
+
+    // Send OTP via Way2Mint SMS using GET request with query parameters
+    try {
+      const way2MintResponse = await axios.get(
+        `https://apibulksms.way2mint.com/pushsms?username=${process.env.WAY2MINT_USER}&password=${process.env.WAY2MINT_PASSWORD}&tmplId=1707173459164626895&to=${number}&from=MDVRSL&text=Your Mediversal Patient Portal OTP is ${otp}. Use it within 10 mins to log in. Do not share this code. - Team Mediversal.&data4=1201159335359924573,1702173216915572636`
+      );
+      // console.log(way2MintResponse);
+
+      // Check if the response is successful
+      if (way2MintResponse.status === 200) {
+        res.status(200).json({ message: "OTP sent successfully", number });
+      } else {
+        res.status(500).json({
+          error: "Failed to send OTP through Way2Mint",
+          details: way2MintResponse.data.message,
+        });
+      }
+    } catch (error) {
+      console.error("Way2Mint API error:", error); // Log Way2Mint error details
+      res
+        .status(500)
+        .json({ error: "Failed to send OTP", details: error.message });
+    }
+  } catch (error) {
+    console.error("Server error:", error); // Log server error details
+    res.status(500).json({
+      error: "An error occurred on the server",
+      details: error.message,
+    });
+  }
+};
+export const sendWay2mintOtpByUhid = async (req, res) => {
+  try {
+    const { uhid } = req.body;
+
+    let patient = await Patient.findOne({ UHID: uhid });
+    if (!patient) {
+      console.log("Patient does not exist");
+      return res.status(400).json({ message: "Patient does not exist" });
+    }
+    if (!patient.number) {
+      return res.status(404).json({ message: "Number not found" });
+    }
+    // console.log(patient.number);
+
+    const otp = otpGenerator.generate(4, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
+    });
+
+    const otpExpire = Date.now() + 10 * 60 * 1000;
+
+    patient.otp = otp;
+    patient.otpExpire = otpExpire;
+    await patient.save();
+
+    try {
+      const way2MintResponse = await axios.get(
+        `https://apibulksms.way2mint.com/pushsms?username=${process.env.WAY2MINT_USER}&password=${process.env.WAY2MINT_PASSWORD}&tmplId=1707173459164626895&to=${patient.number}&from=MDVRSL&text=Your Mediversal Patient Portal OTP is ${otp}. Use it within 10 mins to log in. Do not share this code. - Team Mediversal.&data4=1201159335359924573,1702173216915572636`
+      );
+      // console.log(way2MintResponse);
+
+      // Check if the response is successful
+      if (way2MintResponse.status === 200) {
+        res
+          .status(200)
+          .json({ message: "OTP sent successfully", number: patient.number });
+      } else {
+        res.status(500).json({
+          error: "Failed to send OTP through Way2Mint",
+          details: way2MintResponse.data.message,
+        });
+      }
+    } catch (error) {
+      console.error("Way2Mint API error:", error); // Log Way2Mint error details
+      res
+        .status(500)
+        .json({ error: "Failed to send OTP", details: error.message });
+    }
+  } catch (error) {
+    console.error("Server error:", error); // Log server error details
+    res.status(500).json({
+      error: "An error occurred on the server",
+      details: error.message,
+    });
+  }
+};
 
 // Verify OTP by number
 export const verifyOtp = async (req, res) => {
@@ -108,15 +230,12 @@ export const verifyOtp = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    // console.log("Generated Token:", token); // Debugging: Check token generation
 
-    // Clear OTP and expiration for all patients with the same number
     await Patient.updateMany(
       { number },
       { $unset: { otp: "", otpExpire: "" } }
     );
 
-    // Extract UHIDs along with _id for all associated patients
     const uhidList = patients.map((p) => ({
       _id: p._id,
       UHID: p.UHID,
@@ -266,7 +385,7 @@ export const registerPatient = async (req, res) => {
 //repoet protuios
 //upload report
 export const uploadReport = async (req, res) => {
-  const { uhidOrNumber, reportType, reportName,uploaderName} = req.body;
+  const { uhidOrNumber, reportType, reportName, uploaderName } = req.body;
 
   try {
     const patient = await Patient.findOne({
@@ -418,7 +537,7 @@ export const getUHIDsByNumber = async (req, res) => {
 
 export const downloadFile = async (req, res) => {
   const fileUrl = req.query.url;
-  // console.log("Received file URL:", fileUrl); 
+  // console.log("Received file URL:", fileUrl);
 
   try {
     const response = await axios.get(fileUrl, { responseType: "stream" });
@@ -493,37 +612,36 @@ export const bulkUploadPatients = async (req, res) => {
 
 export const fetchReportsWithCount = async (req, res) => {
   try {
-      // Get today's date in YYYY-MM-DD format
-      const today = new Date();
-      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
-      // Fetch reports uploaded today and group by uploaderName
-      const reports = await Report.aggregate([
-          {
-              // Match reports that were created today
-              $match: {
-                  createdAt: { $gte: startOfDay, $lte: endOfDay }
-              }
-          },
-          {
-              // Group by uploaderName and count the reports
-              $group: {
-                  _id: "$uploaderName", // Group by uploader's name
-                  count: { $sum: 1 }     // Count the number of reports
-              }
-          },
-          {
-              // Optionally, sort the results by uploaderName (optional)
-              $sort: { "_id": 1 }
-          }
-      ]);
+    // Fetch reports uploaded today and group by uploaderName
+    const reports = await Report.aggregate([
+      {
+        // Match reports that were created today
+        $match: {
+          createdAt: { $gte: startOfDay, $lte: endOfDay },
+        },
+      },
+      {
+        // Group by uploaderName and count the reports
+        $group: {
+          _id: "$uploaderName", // Group by uploader's name
+          count: { $sum: 1 }, // Count the number of reports
+        },
+      },
+      {
+        // Optionally, sort the results by uploaderName (optional)
+        $sort: { _id: 1 },
+      },
+    ]);
 
-      // Return the result as JSON with uploaderName and upload count
-      res.json(reports);
+    // Return the result as JSON with uploaderName and upload count
+    res.json(reports);
   } catch (error) {
-      console.error("Error fetching reports:", error);
-      res.status(500).send("Error fetching reports");
+    console.error("Error fetching reports:", error);
+    res.status(500).send("Error fetching reports");
   }
-
 };
