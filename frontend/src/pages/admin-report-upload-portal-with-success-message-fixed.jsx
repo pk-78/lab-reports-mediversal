@@ -39,7 +39,7 @@ const AdminReportUploadPortal = () => {
   const username = localStorage.getItem("userName");
   const navigate = useNavigate();
   const fileArray = [];
-  console.log(username);
+  // console.log(username);
   useEffect(() => {
     const fetchPatientData = async () => {
       setFetchLoading(true);
@@ -201,7 +201,7 @@ const AdminReportUploadPortal = () => {
     // console.log(fileArray);
     setIsDisabled(true);
   };
-
+  // this part has no working for now
   const handleSingleUpload = async (e, file, report, type) => {
     e.preventDefault();
 
@@ -285,6 +285,7 @@ const AdminReportUploadPortal = () => {
         formData.append("reports", file);
       });
       formData.append("uhidOrNumber", selectedPatient.UHID);
+      formData.append("uploaderName", username);
 
       const response = await axios.post(
         `${url}/api/v1/auth/upload-multiple-reports`,
