@@ -38,7 +38,7 @@ export default function AdminViewReport() {
         ) ||
         patient?.number?.toLowerCase().includes(patientSearchTerm.toLowerCase())
     );
-    console.log(filteredPatients);
+    // console.log(filteredPatients);
 
     // Limit the display to the first 10 patients
     const displayedPatients = filteredPatients?.slice(0, 10);
@@ -131,7 +131,7 @@ export default function AdminViewReport() {
         );
 
         setTotalReport(response.data);
-        console.log(response.data);
+        // console.log(response.data);
       } catch (err) {
         setError(err.message);
         toast.error("Error while fetching, please refresh");
@@ -215,7 +215,7 @@ export default function AdminViewReport() {
       </div>
     );
   };
-  console.log(selectedPatient?._id);
+  // console.log(selectedPatient?._id);
   const ReportTracking = () => {
     return (
       <div className="mx-6">

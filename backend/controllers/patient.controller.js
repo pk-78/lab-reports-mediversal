@@ -463,7 +463,7 @@ export const getPatientReports = async (req, res) => {
 };
 
 export const uploadMultipleReports = async (req, res) => {
-  const { uhidOrNumber } = req.body;
+  const { uhidOrNumber,uploaderName } = req.body;
 
   try {
     // Find the patient by UHID or number
@@ -487,6 +487,7 @@ export const uploadMultipleReports = async (req, res) => {
         }`;
 
         const report = new Report({
+          uploaderName:uploaderName,
           reportType: req.body.reportType,
           reportName: req.body.reportName,
           reportLink,
