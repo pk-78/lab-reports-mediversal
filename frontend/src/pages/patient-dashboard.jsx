@@ -43,8 +43,8 @@ const PatientDashboard = ({
   const [patientReportData, setPatientReportData] = useState();
   const navigate = useNavigate();
   const [viewData, setViewData] = useState(false);
-  console.log(uniqueId);
-  console.log("ye h role", role);
+  // console.log(uniqueId);
+  // console.log("ye h role", role);
   // console.log(`${url}/api/v1/auth/patients/${role==="admin"?uniqueId:id}`)
   // if (role === "admin") {
   //   setToSendId(uniqueId);

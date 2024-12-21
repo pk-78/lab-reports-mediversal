@@ -69,7 +69,7 @@ const AdminLoginPage = () => {
         //     otpData: { number: data.number, responseData: response.data },
         //   },
         // });
-        console.log(adminUser);
+        // console.log(adminUser);
         localStorage.setItem("role", adminUser.role);
         localStorage.setItem("userData", token);
         localStorage.setItem("userName", adminUser.userId);
@@ -88,7 +88,7 @@ const AdminLoginPage = () => {
     } catch (error) {
       // console.log("Error login", error);
       // toast.error("Login Failed");
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message|| "Something Went Wrong");
     }
     setLoading(false);
   };

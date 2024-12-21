@@ -18,6 +18,12 @@ export default function AdminViewReport() {
   const [showReport, setShowReport] = useState(false);
   const [totalReport, setTotalReport] = useState(null);
 
+  const dateToday = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(dateToday);
+  const fifteenDaysAgo = new Date();
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+  const formattedDate = fifteenDaysAgo.toISOString().split("T")[0];
+
   const handlePatientSearch = (e) => {
     e.preventDefault();
     const searchTerm = patientSearchTerm.toLowerCase();
@@ -49,17 +55,17 @@ export default function AdminViewReport() {
           <>
             <table className="min-w-full bg-white border border-gray-300 rounded-md">
               <thead>
-                <tr className="text-left">
-                  <th className="py-3 px-6 text-xs lg:text-base  border-b text-left font-semibold">
+                <tr className="">
+                  <th className="py-3 px-6 text-xs lg:text-base  border-b  font-semibold">
                     Name
                   </th>
-                  <th className="py-3 px-6 text-xs lg:text-base border-b text-left font-semibold">
+                  <th className="py-3 px-6 text-xs lg:text-base border-b  font-semibold">
                     UHID
                   </th>
-                  <th className="py-3 px-6 text-xs lg:text-base border-b text-left font-semibold">
+                  <th className="py-3 px-6 text-xs lg:text-base border-b  font-semibold">
                     Number
                   </th>
-                  <th className="py-3 px-6 text-xs lg:text-base border-b text-left font-semibold">
+                  <th className="py-3 px-6 text-xs lg:text-base border-b  font-semibold">
                     Action
                   </th>
                 </tr>
@@ -67,16 +73,16 @@ export default function AdminViewReport() {
               <tbody>
                 {displayedPatients.map((patient) => (
                   <tr key={patient.UHID} className="hover:bg-gray-100">
-                    <td className="py-3 px-3 text-left lg:text-base text-xs border-b">
+                    <td className="py-3 px-3  lg:text-base text-xs border-b">
                       {patient?.name}
                     </td>
-                    <td className="py-3 px-3 text-left lg:text-base   text-xs border-b">
+                    <td className="py-3 px-3  lg:text-base   text-xs border-b">
                       {patient?.UHID}
                     </td>
-                    <td className="py-3 px-3 text-left lg:text-base text-xs border-b">
+                    <td className="py-3 px-3  lg:text-base text-xs border-b">
                       {patient?.number}
                     </td>
-                    <td className="py-3 px-3 text-left  lg:text-base text-xs border-b">
+                    <td className="py-3 px-3   lg:text-base text-xs border-b">
                       <button
                         onClick={() => {
                           setShowReport(true);
@@ -84,7 +90,7 @@ export default function AdminViewReport() {
                         }}
                         className="rounded bg-teal-600 text-white py-1 px-4 flex items-center justify-center"
                       >
-                        <span className="hidden lg:inline">View Report</span>
+                        <span className=" lg:inline">View Report</span>
                       </button>
                     </td>
                   </tr>
@@ -126,9 +132,7 @@ export default function AdminViewReport() {
   useEffect(() => {
     const fetchDailyReport = async () => {
       try {
-        const response = await axios.get(
-          `${url}/api/v1/auth/uploader-report-counts`
-        );
+        const response = await axios.get(`${url}/api/v1/auth/reports15days`);
 
         setTotalReport(response.data);
         // console.log(response.data);
@@ -235,24 +239,24 @@ export default function AdminViewReport() {
           <table className="min-w-full leading-normal mt-2 bg-gray-200">
             <thead className="text-gray-600">
               <tr>
-                <th className="px-2 py-3 w-1/12 border-b-2    text-left text-xs font-semibold text-black uppercase tracking-wider">
+                <th className="px-2 py-3 w-1/12 border-b-2     text-xs font-semibold text-black uppercase tracking-wider">
                   Report Name
                 </th>
-                <th className="px-5 py-3 w-1/6 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
+                <th className="px-5 py-3 w-1/6 border-b-2    text-xs font-semibold text-black uppercase tracking-wider">
                   Patient
                 </th>
 
-                <th className="px-5 py-3 w-1/6 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
+                <th className="px-5 py-3 w-1/6 border-b-2    text-xs font-semibold text-black uppercase tracking-wider">
                   Date
                 </th>
 
-                <th className="px-5 py-3 w-3/12 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
+                <th className="px-5 py-3 w-3/12 border-b-2    text-xs font-semibold text-black uppercase tracking-wider">
                   Type
                 </th>
-                <th className="px-5 py-3 w-3/12 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
+                <th className="px-5 py-3 w-3/12 border-b-2    text-xs font-semibold text-black uppercase tracking-wider">
                   Uploaded By
                 </th>
-                <th className="px-5 py-3 w-3/12 border-b-2   text-left text-xs font-semibold text-black uppercase tracking-wider">
+                <th className="px-5 py-3 w-3/12 border-b-2    text-xs font-semibold text-black uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -266,24 +270,24 @@ export default function AdminViewReport() {
                       {report?.name}
                     </p>
                   </td>
-                  <td className="px-5 py-3 w-1/6 border-b   text-sm text-left">
+                  <td className="px-5 py-3 w-1/6 border-b   text-sm ">
                     <p className=" text-black whitespace-no-wrap">
                       {report?.patientName}
                     </p>
                   </td>
 
-                  <td className="px-5 py-3 w-1/6 border-b  text-black  text-sm text-left">
+                  <td className="px-5 py-3 w-1/6 border-b  text-black  text-sm ">
                     <p className=" whitespace-no-wrap">{report?.date}</p>
                   </td>
-                  <td className="px-5 py-3 w-3/12 border-b   text-sm text-left">
+                  <td className="px-5 py-3 w-3/12 border-b   text-sm ">
                     <div className="whitespace-no-wrap">{report?.type}</div>
                   </td>
-                  <td className="px-5 py-3 w-3/12 border-b   text-sm text-left">
+                  <td className="px-5 py-3 w-3/12 border-b   text-sm ">
                     <div className="whitespace-no-wrap">
                       {report?.uploadedBy?.name}
                     </div>
                   </td>
-                  <td className="px-5 py-3 w-3/12 border-b flex   text-left gap-3 text-lg">
+                  <td className="px-5 py-3 w-3/12 border-b flex    gap-3 text-lg">
                     <button>
                       <IoEye />
                     </button>
@@ -301,51 +305,95 @@ export default function AdminViewReport() {
   };
 
   const UserUpload = () => {
+    // Filter data based on selected date
+    const filteredData = selectedDate
+      ? totalReport
+          .filter((user) => {
+            // Filter out users who have no uploads for the selected date
+            const userUploadsForDate = user.dailyCounts.some(
+              (entry) => entry.date === selectedDate
+            );
+            return userUploadsForDate;
+          })
+          .map((user) => ({
+            _id: user._id,
+            dailyCounts: user.dailyCounts.filter(
+              (entry) => entry.date === selectedDate
+            ),
+          }))
+      : totalReport;
+
     return (
       <div className="mx-6">
-        <div className=" my-4 text-2xl font-bold">User Upload</div>
-        {/* <div className="flex gap-4 ">
-          <input
-            type="text"
-            placeholder="Search.."
-            className="border border-slate-900 rounded pl-2"
-          />
-          <button className="bg-teal-600 text-white px-3 py-1 rounded">
-            Search
-          </button>
-        </div> */}
+        <div className="flex justify-between">
+          <div className="my-4 text-2xl font-bold">User Upload</div>
+          <div className="flex mt-6">
+            <label htmlFor="selectDate">Select Date: </label>
+            <div>
+              <input
+                type="date"
+                id="selectDate"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                min={formattedDate}
+                max={dateToday}
+                className=""
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="bg-gray-100 rounded-md h-screen p-5">
           <table className="w-full border-collapse bg-white shadow-lg rounded-lg">
             <thead>
               <tr className="bg-teal-600 text-white text-sm uppercase font-semibold">
                 <th className="px-6 py-3 text-left">Name</th>
                 <th className="px-6 py-3 text-left">Role</th>
+                <th className="px-6 py-3 text-left">Date</th>
                 <th className="px-6 py-3 text-left">Total Uploads</th>
               </tr>
             </thead>
             <tbody>
-              {totalReport?.map((report) => (
-                <tr
-                  key={report._id}
-                  className="border-b hover:bg-gray-100 transition duration-200"
-                >
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    <p className="truncate">{report?._id}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    Lab Technician
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    {report?.count}
+              {filteredData.length > 0 ? (
+                filteredData.map((user) =>
+                  user.dailyCounts.map((entry, index) => (
+                    <tr
+                      key={index}
+                      className="border-b hover:bg-gray-100 transition duration-200"
+                    >
+                      <td className="pl-6 py-4 text-sm text-gray-800">
+                        {user._id || "No name"}
+                      </td>
+                      <td className="py-4 text-sm text-gray-800 text-left">
+                        Lab Technician
+                      </td>
+                      <td className="py-4 text-sm text-gray-800 text-left">
+                        {entry.date}
+                      </td>
+                      <td className="py-4 text-sm text-gray-800 pl-16 text-left">
+                        {entry?.count}
+                      </td>
+                    </tr>
+                  ))
+                )
+              ) : (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="text-center py-4 text-sm text-gray-800"
+                  >
+                    No data available for the selected date. please select date
+                    after {formattedDate}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </div>
     );
   };
+
   return (
     <div className="h-screen">
       {showReport && (
