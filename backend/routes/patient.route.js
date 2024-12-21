@@ -3,6 +3,7 @@ import express from "express";
 import {
   bulkUploadPatients,
   downloadFile,
+  fetchReportsCountLast15Days,
   fetchReportsWithCount,
   getAllPatients,
   getPatientById,
@@ -61,6 +62,7 @@ patientRoute.post("/getUHIDsByNumber", getUHIDsByNumber);
 patientRoute.get("/download", downloadFile);
 
 patientRoute.post("/bulk-upload", upload.single("csvFile"), bulkUploadPatients);
-patientRoute.get("/uploader-report-counts", fetchReportsWithCount);
+patientRoute.get("/reports15days", fetchReportsCountLast15Days);
+
 
 export default patientRoute;

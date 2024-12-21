@@ -646,3 +646,55 @@ export const fetchReportsWithCount = async (req, res) => {
     res.status(500).send("Error fetching reports");
   }
 };
+
+
+
+export const fetchReportsCountLast15Days = async (req, res) => {
+  try {
+    const today = new Date();
+    const startDate = new Date(today.setDate(today.getDate() - 15));
+    
+    // Fetch reports uploaded in the last 15 days, grouped by day and uploader
+    const reports = await Report.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate }, // Filter reports created in the last 15 days
+        },
+      },
+      {
+        $group: {
+          _id: {
+            uploaderName: "$uploaderName",
+            date: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            },
+          },
+          count: { $sum: 1 }, // Count the number of reports for each uploader and day
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.uploaderName",
+          dailyCounts: {
+            $push: {
+              date: "$_id.date",
+              count: "$count",
+            },
+          },
+        },
+      },
+      {
+        $sort: { "_id": 1 }, // Sort by uploaderName (optional)
+      },
+    ]);
+
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error("Error fetching reports count:", error);
+    res.status(500).json({ message: "Error fetching reports count", error: error.message });
+  }
+};
+
+
+
+
