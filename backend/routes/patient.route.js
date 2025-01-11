@@ -10,8 +10,6 @@ import {
   getPatientReports,
   getUHIDsByNumber,
   registerPatient,
-  sendOtp,
-  sendOtpByUHID,
   sendWay2mintOtp,
   sendWay2mintOtpByUhid,
   uploadMultipleReports,
