@@ -14,74 +14,14 @@ import fs from "fs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
-const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
 
 const isValidPhoneNumber = (phoneNumber) => {
   const phoneRegex = /^\+[1-9]\d{1,14}$/; // E.164 format regex
   return phoneRegex.test(phoneNumber);
 };
 // Send OTP From twillio filhal k liye working stop hai iski
-export const sendOtp = async (req, res) => {
-  try {
-    const { number } = req.body;
 
-    // Validate phone number format
-    if (!isValidPhoneNumber(number)) {
-      return res.status(400).json({
-        message:
-          "Invalid phone number format. Please use international format (e.g., +1234567890).",
-      });
-    }
-
-    // Check if patient already exists or create a new entry
-    let patient = await Patient.findOne({ number });
-    if (!patient) {
-      console.log("Patient does not exist");
-      return res.status(400).json({ message: "Patient does not exist" });
-    }
-
-    // Generate OTP
-    const otp = otpGenerator.generate(4, {
-      upperCaseAlphabets: false,
-      specialChars: false,
-      lowerCaseAlphabets: false,
-    });
-
-    // Set OTP expiration time (5 minutes from now)
-    const otpExpire = Date.now() + 5 * 60 * 1000;
-
-    // Save OTP and expiration to the patient document
-    patient.otp = otp;
-    patient.otpExpire = otpExpire;
-    await patient.save();
-
-    // Send OTP via Twilio SMS
-    try {
-      await client.messages.create({
-        body: `Your OTP code is ${otp}. It will expire in 5 minutes.`,
-        from: twilioPhoneNumber,
-        to: number,
-      });
-
-      res.status(200).json({ message: "OTP sent successfully", number });
-    } catch (error) {
-      console.error("Twilio error:", error); // Log Twilio error details
-      res
-        .status(500)
-        .json({ error: "Failed to send OTP", details: error.message });
-    }
-  } catch (error) {
-    console.error("Server error:", error); // Log server error details
-    res.status(500).json({
-      error: "An error occurred on the server",
-      details: error.message,
-    });
-  }
-};
 // send otp from way2mint  workin for now
 export const sendWay2mintOtp = async (req, res) => {
   try {
@@ -285,52 +225,7 @@ export const verifyOtpByUhid = async (req, res) => {
 };
 
 // Send OTP by UHID
-export const sendOtpByUHID = async (req, res) => {
-  const { uhid } = req.body;
 
-  let patient = await Patient.findOne({ UHID: uhid });
-  if (!patient) {
-    return res
-      .status(404)
-      .json({ message: "Patient with this UHID not found" });
-  }
-
-  if (!patient.number) {
-    return res
-      .status(400)
-      .json({ message: "No phone number associated with this patient" });
-  }
-
-  const otp = otpGenerator.generate(4, {
-    upperCaseAlphabets: false,
-    specialChars: false,
-    lowerCaseAlphabets: false,
-  });
-
-  const otpExpire = Date.now() + 5 * 60 * 1000;
-
-  patient.otp = otp;
-  patient.otpExpire = otpExpire;
-  await patient.save();
-
-  // Send OTP via SMS using Twilio
-  try {
-    await client.messages.create({
-      body: ` Your OTP code is ${otp}. It will expire in 5 minutes.`,
-      from: twilioPhoneNumber,
-      to: patient.number,
-    });
-
-    res.status(200).json({
-      message: "OTP sent successfully to registered phone number",
-      number: patient.number,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to send OTP", error: error.message });
-  }
-};
 
 export const getAllPatients = async (req, res) => {
   try {
@@ -463,7 +358,7 @@ export const getPatientReports = async (req, res) => {
 };
 
 export const uploadMultipleReports = async (req, res) => {
-  const { uhidOrNumber,uploaderName } = req.body;
+  const { uhidOrNumber, uploaderName } = req.body;
 
   try {
     // Find the patient by UHID or number
@@ -487,7 +382,7 @@ export const uploadMultipleReports = async (req, res) => {
         }`;
 
         const report = new Report({
-          uploaderName:uploaderName,
+          uploaderName: uploaderName,
           reportType: req.body.reportType,
           reportName: req.body.reportName,
           reportLink,
@@ -647,13 +542,11 @@ export const fetchReportsWithCount = async (req, res) => {
   }
 };
 
-
-
 export const fetchReportsCountLast15Days = async (req, res) => {
   try {
     const today = new Date();
     const startDate = new Date(today.setDate(today.getDate() - 15));
-    
+
     // Fetch reports uploaded in the last 15 days, grouped by day and uploader
     const reports = await Report.aggregate([
       {
@@ -684,17 +577,15 @@ export const fetchReportsCountLast15Days = async (req, res) => {
         },
       },
       {
-        $sort: { "_id": 1 }, // Sort by uploaderName (optional)
+        $sort: { _id: 1 }, // Sort by uploaderName (optional)
       },
     ]);
 
     res.status(200).json(reports);
   } catch (error) {
     console.error("Error fetching reports count:", error);
-    res.status(500).json({ message: "Error fetching reports count", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching reports count", error: error.message });
   }
 };
-
-
-
-

@@ -24,12 +24,10 @@ import { multipleUpload, singleUpload } from "../middleware/multer.js";
 
 const patientRoute = express.Router();
 
-patientRoute.post("/sendOtp", sendOtp);
 patientRoute.post("/sendwayOtp", sendWay2mintOtp);
 patientRoute.post("/sendwayOtpuhid", sendWay2mintOtpByUhid);
 patientRoute.post("/verify-otp", verifyOtp);
 patientRoute.post("/verify-otp-uhid", verifyOtpByUhid);
-patientRoute.post("/send-otp-uhid", sendOtpByUHID);
 patientRoute.get("/patients", getAllPatients);
 patientRoute.get("/patients/:id", getPatientById);
 patientRoute.post("/register", registerPatient);
@@ -63,6 +61,5 @@ patientRoute.get("/download", downloadFile);
 
 patientRoute.post("/bulk-upload", upload.single("csvFile"), bulkUploadPatients);
 patientRoute.get("/reports15days", fetchReportsCountLast15Days);
-
 
 export default patientRoute;
