@@ -93,20 +93,30 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 ">
+    <div className="relative min-h-screen  bg-gradient-to-br from-teal-50 to-teal-100">
+      <div>
+        <button
+          onClick={() => {
+            navigate("/admin-login");
+          }}
+          className="bg-teal-600 text-white p-2 right-2 top-2 rounded-md absolute"
+        >
+          Admin Login
+        </button>
+      </div>
       <div className=" w-full flex items-center justify-center p-4">
-        <img
+        {/* <img
           src="../../MediversalDetailLogo.png"
           alt=""
           className="h-32 w-80"
-        />
+        /> */}
       </div>
-      <div className=" w-full flex items-center justify-center p-4">
+      <div className=" w-full flex items-center mt-20 justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row">
           {/* Hero Section */}
           <div className="md:w-1/2 bg-teal-600 p-8 text-white">
             <h2 className="text-3xl font-bold mb-6">
-              Welcome to Mediversal Patient Portal
+              Welcome to Patient Portal
             </h2>
             <p className="mb-8 text-lg">
               Access your health information anytime, anywhere.
@@ -115,8 +125,7 @@ const LoginPage = () => {
               {[
                 "View and download lab reports",
                 "Access diagnostic results",
-                "Manage appointments",
-                "View and pay bills securely",
+                "Check number of reports per day",
               ].map((item, index) => (
                 <li key={index} className="flex items-center">
                   <svg
