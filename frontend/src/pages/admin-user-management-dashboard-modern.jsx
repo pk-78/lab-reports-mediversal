@@ -12,6 +12,18 @@ const AdminUserManagementDashboard = () => {
     role: "Uploader",
     // isActive: true,
   });
+
+  const [newPatient, setNewPatient] = useState({
+    name: "",
+    UHID: "",
+    number: "",
+  });
+
+  const handlePatientInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewPatient((prev) => ({ ...prev, [name]: value }));
+  };
+
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -66,6 +78,34 @@ const AdminUserManagementDashboard = () => {
       isActive: true,
     });
     setEditingUser(null);
+  };
+
+  const handleCreatePatient = async (e) => {
+    e.preventDefault();
+    const formattedPatient = {
+      ...newPatient,
+      number: `+91${newPatient.number}`, // Prepend +91 to the number
+    };
+
+    console.log(formattedPatient);
+
+    try {
+      const response = await axios.post(
+        `${url}/api/v1/auth/register`,
+        formattedPatient
+      );
+      console.log("Patient Created:", response);
+      if (response.status === 201) {
+        toast.success("Patient created successfully!");
+        setNewPatient({ name: "", UHID: "", number: "" });
+      }
+    } catch (error) {
+      console.error(
+        "Error creating patient:",
+        error.response?.data || error.message
+      );
+      toast.error("Failed to create patient.");
+    }
   };
 
   useEffect(() => {
@@ -305,8 +345,78 @@ const AdminUserManagementDashboard = () => {
             </form>
           </div>
 
+          <div className="bg-gray-50 rounded-xl p-6 mb-8 shadow-inner">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              Create Patient
+            </h2>
+            <form onSubmit={handleCreatePatient} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={newPatient.name}
+                    onChange={handlePatientInputChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="UHID"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    UHID
+                  </label>
+                  <input
+                    type="text"
+                    id="UHID"
+                    name="UHID"
+                    value={newPatient.UHID}
+                    onChange={handlePatientInputChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="number"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Number
+                  </label>
+                  <input
+                    type="number"
+                    id="number"
+                    name="number"
+                    value={newPatient.number}
+                    onChange={handlePatientInputChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-200"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 transition duration-200"
+                >
+                  Create Patient
+                </button>
+              </div>
+            </form>
+          </div>
+
           {/* bulk upload */}
-          <div className=" p-6 bg-teal-50 rounded-lg shadow-lg">
+          {/* <div className=" p-6 bg-teal-50 rounded-lg shadow-lg">
             <h1 className="text-3xl font-bold text-teal-800 mb-6">
               Bulk Upload Patient Data
             </h1>
@@ -341,14 +451,17 @@ const AdminUserManagementDashboard = () => {
               onClick={handleSubmit}
               className="bg-teal-600  px-4 py-2 rounded hover:bg-teal-700 text-white"
             >
-              {/* <FileText className="mr-2 h-5 w-5" /> */}
+           
               {isloading ? "Uploading..." : "Submit Bulk Upload"}
             </button>
-          </div>
+          </div> */}
 
           <button
-            onClick={()=>{navigate("/adminViewReport")}}
-          className="bg-teal-600 rounded text-white m-2 text-center w-full h-12">
+            onClick={() => {
+              navigate("/adminViewReport");
+            }}
+            className="bg-teal-600 rounded text-white m-2 text-center w-full h-12"
+          >
             Admin View Report
           </button>
 
